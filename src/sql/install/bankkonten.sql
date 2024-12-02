@@ -1,6 +1,6 @@
 delimiter //
 
-create table `bankkonten` (
+create table if not exists `bankkonten` (
   `konto` varchar(255) not null,
   `kontonummer` varchar(10) default '',
   `bic` varchar(15) default null,

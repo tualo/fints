@@ -51,17 +51,17 @@ class FinTS
                 $oneAccount = $getAccounts->getAccounts()[0];
 
                 $request_record = array(
-                    'bankkonten__konto' => $oneAccount->getIban(),
-                    'bankkonten__kontonummer' => $oneAccount->getAccountNumber(),
-                    'bankkonten__blz' => $oneAccount->getBlz(),
-                    'bankkonten__bic' => $oneAccount->getBic(),
-                    'bankkonten__waehrung' => $oneAccount->getSubAccount(),
-                    'bankkonten__last_fints_query' => date('Y-m-d H:i:s')
+                    'konto' => $oneAccount->getIban(),
+                    'kontonummer' => $oneAccount->getAccountNumber(),
+                    'blz' => $oneAccount->getBlz(),
+                    'bic' => $oneAccount->getBic(),
+                    'waehrung' => $oneAccount->getSubAccount(),
+                    'last_fints_query' => date('Y-m-d H:i:s')
                 );
 
                 $bankkontenAppend = DSCreateRoute::createRecord($db, 'bankkonten', array('updateOnDuplicate' => 1), $request_record);
                 if ($bankkontenAppend === false) throw new \Exception('DS Bankkonten kann nicht geschrieben werden. '  );
-                $sql = "select if(cast( ifnull(max(BUCHUNGSDATUM),'2017-01-01') as date)<date_add(current_date, interval -190 day), date_add(current_date, interval -190 day),  cast( ifnull(max(BUCHUNGSDATUM),'2017-01-01') as date) ) mdt  from kontoauszuege where  bankkonto={bankkonten__konto}";
+                $sql = "select if(cast( ifnull(max(buchungsdatum),'2017-01-01') as date)<date_add(current_date, interval -190 day), date_add(current_date, interval -190 day),  cast( ifnull(max(BUCHUNGSDATUM),'2017-01-01') as date) ) mdt  from kontoauszuege where  bankkonto={konto}";
                 $maxLastDate = $db->singleValue($sql, $bankkontenAppend, 'mdt');
 
                 $from = new \DateTime($maxLastDate);
@@ -96,20 +96,20 @@ class FinTS
 
                         $kontostand += $amount;
                         $hash = array(
-                            'kontoauszuege__bankkonto' => $bankkontenAppend['bankkonten__konto'],
-                            'kontoauszuege__buchungsdatum' => $bookingdate,
-                            'kontoauszuege__valuta' => $vaultadate,
-                            'kontoauszuege__betrag' => $amount,
-                            'kontoauszuege__waehrung' => $bankkontenAppend['bankkonten__waehrung'],
-                            'kontoauszuege__empfaengername1' => $name,
-                            'kontoauszuege__blz' => $xblz,
-                            'kontoauszuege__kontonummer' => $xbankkonto,
-                            'kontoauszuege__verwendungszweck1' => $description1,
-                            'kontoauszuege__verwendungszweck2' => $description2,
-                            'kontoauszuege__verwendungszweck3' => $bookingtext,
+                            'bankkonto' => $bankkontenAppend['konto'],
+                            'buchungsdatum' => $bookingdate,
+                            'valuta' => $vaultadate,
+                            'betrag' => $amount,
+                            'waehrung' => $bankkontenAppend['waehrung'],
+                            'empfaengername1' => $name,
+                            'blz' => $xblz,
+                            'kontonummer' => $xbankkonto,
+                            'verwendungszweck1' => $description1,
+                            'verwendungszweck2' => $description2,
+                            'verwendungszweck3' => $bookingtext,
                             // not the best, but may fit
-                            'kontoauszuege__uniqueid' => $vaultadate . $amount . $description1 . $description2 . $bookingtext,
-                            'kontoauszuege__kontostand' => $kontostand
+                            'uniqueid' => $vaultadate . $amount . $description1 . $description2 . $bookingtext,
+                            'kontostand' => $kontostand
                         );
                         $knres = DSCreateRoute::createRecord($db, 'kontoauszuege', array('updateOnDuplicate' => 1), $hash);
                         if ($knres === false) throw new \Exception('Der Kontoauszug kann nicht geschrieben werden. ' );

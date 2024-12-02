@@ -1,8 +1,11 @@
-Ext.define('Tualo.FinTS.models.Syncform', {
+Ext.define('Tualo.FinTS.models.Sync', {
     extend: 'Ext.app.ViewModel',
     alias: 'viewmodel.fints_sync',
     data:{
         interrupted: false,
+        accountPassword: '',
+        accountTANMode: '',
+        accountTAN: ''
 
     },
     formulas: {
@@ -14,6 +17,37 @@ Ext.define('Tualo.FinTS.models.Syncform', {
         bankkonten: {
             type: 'bankkonten_store',
             autoLoad: true
+        },
+        fints_accounts: {
+            type: 'fints_accounts_store',
+            autoLoad: true
+        },
+        tanmodes: {
+
+            proxy: {
+                type: 'memory',
+                reader: {
+                    type: 'json',
+                    rootProperty: 'data'
+                }
+            }, 
+            //type: 'json',
+            fields: [
+                {
+                    name: 'id',
+                    type: 'int'
+                },{
+                    name: 'name',
+                    type: 'string'
+                },{
+                    name: 'isDecoupled',
+                    type: 'boolean'
+                },{
+                    name: 'needsTanMedium',
+                    type: 'boolean'
+                }
+            ],
+            autoLoad: false
         }
     }
 });

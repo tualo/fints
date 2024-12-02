@@ -15,10 +15,10 @@ class Challenge implements IRoute{
                 if (!class_exists("\Fhp\Options\Credentials")){
                     throw new \Exception("fints not installed");
                 }
-                if(!defined('FHP_REGISTRATION_NO')){
+                if(!A::configuration('fhp','FHP_REGISTRATION_NO')){
                     throw new \Exception('FinTS Produktcode fehlt');
                 }
-                if(!defined('FHP_SOFTWARE_VERSION')){
+                if(!A::configuration('fhp','FHP_SOFTWARE_VERSION')){
                     throw new \Exception('FinTS Produktversion fehlt');
                 }
         
@@ -28,13 +28,20 @@ class Challenge implements IRoute{
                 if (!isset($_REQUEST['useaccount'])){
                     throw new \Exception('Das Account fehlt');
                 }
+
+                $response[] = array(
+                    'id'=>'904',
+                    'name'=>'appTAN-Verfahren',
+                    'isDecoupled'=>false,
+                    'needsTanMedium'=>false
+                );
         
-                include_once __DIR__.'/classes/FinTS.php';
-        
+                if (false) {
+                
                 $fints_account = DSReadRoute::readSingleItem($db,'fints_accounts',array(
                     'filter'=>array(
                         array(
-                            'property'=>'fints_accounts__id',
+                            'property'=>'id',
                             'operator'=>'eq',
                             'value'=>$_REQUEST['useaccount']
                         )
@@ -45,11 +52,11 @@ class Challenge implements IRoute{
                 
                 // include_once __DIR__.'/classes/FinTS.php';
                 $options = new \Fhp\Options\FinTsOptions();
-                $options->productName = constant('FHP_REGISTRATION_NO');
-                $options->productVersion = constant('FHP_SOFTWARE_VERSION');
-                $options->url = $fints_account['fints_accounts__url'];
-                $options->bankCode = $fints_account['fints_accounts__code'];
-                $credentials = \Fhp\Options\Credentials::create($fints_account['fints_accounts__banking_username'], $_REQUEST['usepin']);
+                $options->productName = A::configuration('fhp','FHP_REGISTRATION_NO');
+                $options->productVersion =A::configuration('fhp','FHP_SOFTWARE_VERSION');
+                $options->url = $fints_account['url'];
+                $options->bankCode = $fints_account['code'];
+                $credentials = \Fhp\Options\Credentials::create($fints_account['banking_username'], $_REQUEST['usepin']);
         
                 $persistedInstance = $persistedAction = null;
         
@@ -64,6 +71,8 @@ class Challenge implements IRoute{
                 $response = FinTS::handleRequest($_REQUEST, $fints, $db, $persistedAction);
                 file_put_contents($sessionfile, serialize([$fints->persist(), $persistedAction]));
         
+                }
+                A::result('response', $response);
                 A::result('success', true);
             }catch(\Exception $e){
 
@@ -71,7 +80,7 @@ class Challenge implements IRoute{
                 A::result('msg', $e->getMessage());
             }
             A::contenttype('application/json');
-        },array('get'),true);
+        },array('post'),true);
 
     }
 }
