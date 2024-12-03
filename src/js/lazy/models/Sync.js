@@ -1,10 +1,14 @@
 Ext.define('Tualo.FinTS.models.Sync', {
     extend: 'Ext.app.ViewModel',
     alias: 'viewmodel.fints_sync',
+    requires: [
+        'Tualo.FinTS.models.TanModes'
+    ],
     data:{
         interrupted: false,
         accountPassword: '',
         accountTANMode: '',
+        accountTANModeID: '',
         accountTAN: ''
 
     },
@@ -23,31 +27,12 @@ Ext.define('Tualo.FinTS.models.Sync', {
             autoLoad: true
         },
         tanmodes: {
-
+            model: 'Tualo.FinTS.models.TanModes',
+            data: [/* */],
             proxy: {
                 type: 'memory',
-                reader: {
-                    type: 'json',
-                    rootProperty: 'data'
-                }
-            }, 
-            //type: 'json',
-            fields: [
-                {
-                    name: 'id',
-                    type: 'int'
-                },{
-                    name: 'name',
-                    type: 'string'
-                },{
-                    name: 'isDecoupled',
-                    type: 'boolean'
-                },{
-                    name: 'needsTanMedium',
-                    type: 'boolean'
-                }
-            ],
-            autoLoad: false
+                
+            }
         }
     }
 });

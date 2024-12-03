@@ -27,14 +27,6 @@ Ext.define('Tualo.FinTS.Sync', {
         border: false
     },
 
-    /*
-
--> fints account
--> passwort
--> tan auswahl
--> starten
-
-*/
     defaultListenerScope: true,
 
     bbar: ['->',
@@ -62,8 +54,9 @@ Ext.define('Tualo.FinTS.Sync', {
                 {
                     xtype: 'component',
                     cls: 'lds-container-compact',
-                    html: '<div class=" "><div class="blobs-container"><div class="blob gray"></div></div></div>'
-                        + '<div><h3>Kontoauszug abrufen</h3>'
+
+                    html: '<i class="fa-solid fa-money-check-dollar"></i>'
+                        + '<div><h3>Kontoauszug</h3>'
                         + '<span>Klicken Sie auf weiter, um zu beginnen.</span></div>'
                 }
             ]
@@ -75,20 +68,25 @@ Ext.define('Tualo.FinTS.Sync', {
                 type: 'vbox',
                 align: 'center'
             },
+            itemId: 'accountPanel',
             items: [
                 {
                     xtype: 'component',
                     cls: 'lds-container-compact',
-                    html: '<div class=" "><div class="blobs-container"><div class="blob gray"></div></div></div>'
-                        + '<div><h3>Kontoauszug abrufen</h3>'
+                    html: '<i class="fa-solid fa-money-check-dollar"></i>'
+                        + '<div><h3>Kontoauszug</h3>'
                         + '<span>Wählen Sie ein Konto aus.</span></div>'
                 },
                 
                 {
                     xtype: 'dslist_fints_accounts',
+                    itemId: 'accountList',
                     width: 300,
                     height: 300,
                     title: null,
+                    selModel: {
+                        type: 'rowmodel'
+                    },
                     columns: [
                         {
                           "text": "Name",
@@ -142,8 +140,8 @@ Ext.define('Tualo.FinTS.Sync', {
                 {
                     xtype: 'component',
                     cls: 'lds-container-compact',
-                    html: '<div class=" "><div class="blobs-container"><div class="blob gray"></div></div></div>'
-                        + '<div><h3>Kontoauszug abrufen</h3>'
+                    html: '<i class="fa-solid fa-money-check-dollar"></i>'
+                        + '<div><h3>Kontoauszug</h3>'
                         + '<span>Geben Sie das Passwort ein.</span></div>'
                 },
                 
@@ -169,16 +167,19 @@ Ext.define('Tualo.FinTS.Sync', {
                 {
                     xtype: 'component',
                     cls: 'lds-container-compact',
-                    html: '<div class=" "><div class="blobs-container"><div class="blob gray"></div></div></div>'
-                        + '<div><h3>Kontoauszug abrufen</h3>'
+                    html: '<i class="fa-solid fa-money-check-dollar"></i>'
+                        + '<div><h3>Kontoauszug</h3>'
                         + '<span>Wählen Sie ein Anmeldeverfahren.</span></div>'
                 },
                 
                 {
                     xtype: 'combobox',
+                    itemId: 'tanmodescombobox',
                     fieldLabel: 'TAN-Verfahren',
                     idField: 'id',
                     displayField: 'name',
+                    queryMode: 'local',
+                    triggerAction: 'all',
                     bind: {
                         value: '{accountTANMode}',
                         store: '{tanmodes}'
@@ -186,6 +187,35 @@ Ext.define('Tualo.FinTS.Sync', {
                 }
             ]
         },
+
+        {
+            xtype: 'panel',
+            layout: {
+                type: 'vbox',
+                align: 'center'
+            },
+            itemId: 'taninput',
+            items: [
+                {
+                    xtype: 'component',
+                    cls: 'lds-container-compact',
+                    html: '<div class=" "><div class="blobs-container"><div class="blob gray"></div></div></div>'
+                        + '<div><h3>Kontoauszug abrufen</h3>'
+                        + '<span>Geben Sie die TAN ein.</span></div>'
+                },
+                
+                {
+                    xtype: 'textfield',
+                    fieldLabel: 'TAN',
+                    inputType: 'password',
+                    bind: {
+                        value: '{accountTAN}'
+                    }
+                }
+            ]
+        },
+
+        
         {
             id: 'card-1',
             html: '<p>Step 2 of 3</p><p>Almost there.  Please click the "Next" button to continue...</p>'
@@ -208,7 +238,6 @@ Ext.define('Tualo.FinTS.Sync', {
         var me = this,
         l = me.getLayout(),
         id = l.activeItem.itemId || l.activeItem.getId();
-        console.log(">>>>>",id,l.activeItem,me.items.indexMap);
         return me.items.indexMap[id];
     },
     doCardNavigation: function(incr) {
@@ -220,20 +249,47 @@ Ext.define('Tualo.FinTS.Sync', {
             next = parseInt(i, 10) + incr;
 
         
+        me.getController().forceSelection();
         if (currentId=='accountPassword'){
             me.getController().getTanModes();
-        }
+            me.next(next);
+        }else if (currentId=='tanmodes'){
+            let mode = me.getViewModel().get('accountTANMode'),
+                store  = me.getViewModel().getStore('tanmodes'),
+                byID = store.findRecord( 'id', mode, 0, false, false, true ),
+                byName = store.findRecord( 'name', mode, 0, false, false, true ),
+                match = byID || byName,
+                modeID = match.get('id'),
+                needsTanMedium = match.get('needsTanMedium');
 
-        if (currentId=='tanmodes'){
-            console.log('tanmodes',me.getViewModel().data)
+            console.log('needsTanMedium',needsTanMedium,next)
+            me.getViewModel().set('accountTANModeID',modeID);
+            if (!needsTanMedium){
+                next=next+1;
+                me.getController().login(()=>{
+                    me.next(next);
+                });
+                return;
+            }
+            me.next(next);
+
+        }else if (currentId=='taninput'){
+            me.getController().login(()=>{
+                me.next(next);
+            });
+            return;
         }
 
         
         console.log(currentId,'next',next,'current',i)
+        me.next(next);
+    },
+    next: function(next){
+        var me = this,
+            l = me.getLayout();
         l.setActiveItem(next);
-
-
         me.down('#card-prev').setDisabled(next === 0);
         me.down('#card-next').setDisabled(next === s-1);
+
     }
 });

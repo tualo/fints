@@ -94,6 +94,8 @@ class FinTS
                         $xblz = $transaction->getBankCode();
                         $xbankkonto = $transaction->getAccountNumber();
 
+                        // $transaction->getEndToEndID()
+
                         $kontostand += $amount;
                         $hash = array(
                             'bankkonto' => $bankkontenAppend['konto'],

@@ -29,6 +29,7 @@ class Challenge implements IRoute{
                     throw new \Exception('Das Account fehlt');
                 }
 
+                $response = [];
                 $response[] = array(
                     'id'=>'904',
                     'name'=>'appTAN-Verfahren',
@@ -37,6 +38,7 @@ class Challenge implements IRoute{
                 );
         
                 if (false) {
+                
                 
                 $fints_account = DSReadRoute::readSingleItem($db,'fints_accounts',array(
                     'filter'=>array(
