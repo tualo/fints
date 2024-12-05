@@ -12,7 +12,7 @@ create table if not exists `bankkonten` (
 ) //
 
 
-
+alter table `buchungskonten` add column if not exists `notiz` varchar(50) not null //
 
 create or replace view view_readtable_buchungskonten as
 select
