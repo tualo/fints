@@ -9,6 +9,7 @@ class Install extends CommandLineInstallSQL  implements ICommandline{
     public static $files = [
         'install/ds_class' => 'setup ds_class ',
         'install/bankkonten' => 'setup bankkonten ',
+        'install/bankkonten.ds' => 'setup bankkonten.ds ',
         'install/fints_accounts' => 'setup fints_accounts ',
         'install/fints_accounts.ds' => 'setup fints_accounts.ds ',
     ];

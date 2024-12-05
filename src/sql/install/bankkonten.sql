@@ -12,15 +12,15 @@ create table if not exists `bankkonten` (
 ) //
 
 
-alter table `buchungskonten` add column if not exists `notiz` varchar(50) not null //
+alter table `bankkonten` add column if not exists `name` varchar(50) default '' //
 
-create or replace view view_readtable_buchungskonten as
+create or replace view view_readtable_bankkonten as
 select
-    concat(buchungskonten.konto,' ',buchungskonten.notiz) searchfld,
-    concat(buchungskonten.konto,' ',buchungskonten.notiz) adressen_anzeige,
+    concat(bankkonten.konto,' ',bankkonten.name) searchfld,
+    concat(bankkonten.konto,' ',bankkonten.name) adressen_anzeige,
     konto kundennummer,
-    buchungskonten.*
+    bankkonten.*
 from 
-    buchungskonten
+    bankkonten
 
 //
