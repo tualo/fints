@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Deutsche Kreditwirtschaft (DK) - SEPA-Credit-Transfer-Beispiel -->
+<!-- Format pain.001.001.03 - DFÜ Abkommen, Anlage 3: Spezifikation der Datenformate v3.3 -->
+<!-- SEPA Transaktion mit einer Belastung und einer Gutschrift, Einzelbuchung, IBAN only -->
+<!-- Kostenlos zur Verfügung gestellt von PayArt / zahlungsverkehr.org -->
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03 pain.001.001.03.xsd">
+    <CstmrCdtTrfInitn>
+        <GrpHdr>
+            <!-- Gruppenkopfteil -->
+            <!-- Satz von Merkmalen, die von allen einzelnen Transaktionen, die in der Nachricht enthalten sind, geteilt werden. -->
+            <MsgId>{message_id}</MsgId>
+            <CreDtTm>{message_time}</CreDtTm>
+            <NbOfTxs>1</NbOfTxs>
+            <CtrlSum>{header_sum}</CtrlSum>
+            <InitgPty>
+                <Nm>{bankaccount_name}</Nm>
+            </InitgPty>
+        </GrpHdr>
+        <PmtInf>
+            <!-- Zahlungsinformationen (A-Level) -->
+            <!-- Satz von Merkmalen, der auf der Belastungsseite bei jeder Transaktion innerhalb des gleichen A-Levels angewendet wird. -->
+            <PmtInfId>UXC24021700002PI00001</PmtInfId>
+            <PmtMtd>TRF</PmtMtd>
+            <NbOfTxs>1</NbOfTxs>
+            <CtrlSum>100.00</CtrlSum>
+            <PmtTpInf>
+                <SvcLvl>
+                    <Cd>SEPA</Cd>
+                </SvcLvl>
+            </PmtTpInf>
+            <ReqdExctnDt>2024-02-19</ReqdExctnDt>
+            <Dbtr>
+                <Nm>PayArt</Nm>
+            </Dbtr>
+            <DbtrAcct>
+                <Id>
+                    <IBAN>CH9300762011623852957</IBAN>
+                </Id>
+            </DbtrAcct>
+            <DbtrAgt>
+                <FinInstnId>
+                    <Othr>
+                        <Id>NOTPROVIDED</Id>
+                    </Othr>
+                </FinInstnId>
+            </DbtrAgt>
+            <ChrgBr>SLEV</ChrgBr>
+            <CdtTrfTxInf>
+                <PmtId>
+                    <EndToEndId>ENDTOEND/1234567890-1</EndToEndId>
+                </PmtId>
+                <Amt>
+                    <InstdAmt Ccy="EUR">100.00</InstdAmt>
+                </Amt>
+                <Cdtr>
+                    <Nm>DE zahlungsvekehr.org</Nm>
+                </Cdtr>
+                <CdtrAcct>
+                    <Id>
+                        <IBAN>DE89370400440532013000</IBAN>
+                    </Id>
+                </CdtrAcct>
+            </CdtTrfTxInf>
+        </PmtInf>
+    </CstmrCdtTrfInitn>
+</Document>

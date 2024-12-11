@@ -2,10 +2,17 @@
 
 namespace Tualo\Office\FinTS;
 
+use Tualo\Office\Basic\TualoApplication as A;
 use Fhp\CurlException;
 use Fhp\Protocol\ServerException;
 use Fhp\Protocol\UnexpectedResponseException;
 use Tualo\Office\DS\DSCreateRoute;
+
+
+use nemiah\phpSepaXml\SEPACreditor;
+use nemiah\phpSepaXml\SEPADebitor;
+use nemiah\phpSepaXml\SEPADirectDebitBasic;
+use nemiah\phpSepaXml\SEPATransfer;
 
 class FinTS
 {
@@ -30,12 +37,19 @@ class FinTS
             case 'login':
                 $fints->selectTanMode(intval($request['tanmode']), $request['tanmedium'] ?? null);
                 $login = $fints->login();
+                // var_dump($fints);
+
                 if ($login->needsTan()) {
                     $tanRequest = $login->getTanRequest();
                     $persistedAction = serialize($login);
                     return ['result' => 'needsTan', 'challenge' => $tanRequest->getChallenge()];
                 }
-                return ['result' => 'success'];
+                return [
+
+                    'result' => 'success',
+                    'needsTan'=>'false',
+                    'needsTanV' => $login->needsTan()
+                ];
             case 'submitTan':
                 $fints->submitTan(unserialize($persistedAction), $request['tan']);
                 return ['result' => 'success'];
@@ -46,9 +60,21 @@ class FinTS
                     return ['result' => 'ongoing'];
                 }
             case 'getStatements':
+
                 $getAccounts = \Fhp\Action\GetSEPAAccounts::create();
+                
                 $fints->execute($getAccounts); // We assume that needsTan() is always false here.
+                if ($getAccounts->needsTan()) {
+                    $tanRequest = $getAccounts->getTanRequest();
+                    $persistedAction = serialize($getAccounts);
+                    return ['result' => 'needsTan','fromAction'=>'getStatements', 'challenge' => $tanRequest->getChallenge()];
+                    // handleStrongAuthentication($getAccounts); // See login.php for the implementation.
+                }
+                
+
                 $oneAccount = $getAccounts->getAccounts()[0];
+
+
 
                 $request_record = array(
                     'konto' => $oneAccount->getIban(),
@@ -59,23 +85,38 @@ class FinTS
                     'last_fints_query' => date('Y-m-d H:i:s')
                 );
 
+                A::result('request_record', $request_record);
+
+                /*
                 $bankkontenAppend = DSCreateRoute::createRecord($db, 'bankkonten', array('updateOnDuplicate' => 1), $request_record);
                 if ($bankkontenAppend === false) throw new \Exception('DS Bankkonten kann nicht geschrieben werden. '  );
+                */
                 $sql = "select if(cast( ifnull(max(buchungsdatum),'2017-01-01') as date)<date_add(current_date, interval -190 day), date_add(current_date, interval -190 day),  cast( ifnull(max(BUCHUNGSDATUM),'2017-01-01') as date) ) mdt  from kontoauszuege where  bankkonto={konto}";
-                $maxLastDate = $db->singleValue($sql, $bankkontenAppend, 'mdt');
+                $maxLastDate = $db->singleValue($sql, $request_record, 'mdt');
 
                 $from = new \DateTime($maxLastDate);
 
                 $to = new \DateTime();
                 $oneAccount = $getAccounts->getAccounts()[0];
                 $getStatement = \Fhp\Action\GetStatementOfAccount::create($oneAccount, $from, $to);
+
+                if ($getStatement->needsTan()) {
+                    $tanRequest = $getStatement->getTanRequest();
+                    $persistedAction = serialize($getStatement);
+                    return ['result' => 'needsTan','fromAction'=>'getStatements', 'challenge' => $tanRequest->getChallenge()];
+                    // handleStrongAuthentication($getAccounts); // See login.php for the implementation.
+                }
+                
                 $fints->execute($getStatement);
-                /*if ($getStatement->needsTan()) {
-                        handleStrongAuthentication($getStatement); // See login.php for the implementation.
-                    }*/
 
-                $updateOnDuplicate = true;
 
+                if ($getStatement->needsTan()) {
+                    $tanRequest = $getStatement->getTanRequest();
+                    $persistedAction = serialize($getStatement);
+                    return ['result' => 'needsTan','fromAction'=>'getStatements', 'challenge' => $tanRequest->getChallenge()];
+                    // handleStrongAuthentication($getAccounts); // See login.php for the implementation.
+                }
+                
 
                 $soa = $getStatement->getStatement();
                 foreach ($soa->getStatements() as $statement) {
@@ -98,11 +139,11 @@ class FinTS
 
                         $kontostand += $amount;
                         $hash = array(
-                            'bankkonto' => $bankkontenAppend['konto'],
+                            'bankkonto' => $request_record['konto'],
                             'buchungsdatum' => $bookingdate,
                             'valuta' => $vaultadate,
                             'betrag' => $amount,
-                            'waehrung' => $bankkontenAppend['waehrung'],
+                            'waehrung' => $request_record['waehrung'],
                             'empfaengername1' => $name,
                             'blz' => $xblz,
                             'kontonummer' => $xbankkonto,
@@ -113,14 +154,43 @@ class FinTS
                             'uniqueid' => $vaultadate . $amount . $description1 . $description2 . $bookingtext,
                             'kontostand' => $kontostand
                         );
+                        A::result('hash', $hash);
+
+                        $kontoauszuege = \Tualo\Office\DS\DSTable::instance('kontoauszuege');
+                        $kontoauszuege->insert($hash);
+                        /*
                         $knres = DSCreateRoute::createRecord($db, 'kontoauszuege', array('updateOnDuplicate' => 1), $hash);
                         if ($knres === false) throw new \Exception('Der Kontoauszug kann nicht geschrieben werden. ' );
+                        */
                     }
                 }
 
             case 'logout':
                 $fints->close();
                 return ['result' => 'success'];
+
+            case 'transfer':
+
+
+
+                $getAccounts = \Fhp\Action\GetSEPAAccounts::create();
+                $fints->execute($getAccounts); // We assume that needsTan() is always false here.
+                if ($getAccounts->needsTan()) {
+                    $tanRequest = $getAccounts->getTanRequest();
+                    $persistedAction = serialize($getAccounts);
+                    return ['result' => 'needsTan','fromAction'=>'getStatements', 'challenge' => $tanRequest->getChallenge()];
+                }
+                
+
+                $oneAccount = $getAccounts->getAccounts()[0];
+
+
+                $sendSEPATransfer = \Fhp\Action\SendSEPATransfer::create($oneAccount, $_REQUEST['sepa_xml']);
+                $fints->execute($sendSEPATransfer);
+                if ($sendSEPATransfer->needsTan()) {
+                    handleStrongAuthentication($sendSEPATransfer); // See login.php for the implementation.
+                }
+
             default:
                 throw new \InvalidArgumentException("Unknown action " . $request['action']);
         }

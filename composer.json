@@ -9,7 +9,8 @@
         }
     ],
     "require": {
-        "nemiah/php-fints": "*"
+        "nemiah/php-fints": "*",
+        "nemiah/php-sepa-xml": "*"
     },
     "minimum-stability": "dev",
     "autoload": {

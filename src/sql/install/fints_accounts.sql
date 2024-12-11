@@ -11,3 +11,5 @@ CREATE TABLE IF NOT EXISTS `fints_accounts` (
 );
 
 alter table `fints_accounts` add column if not exists   `name` varchar(100) default '';
+alter table `fints_accounts` add column if not exists   `inhabername` varchar(100) default '';
+alter table `fints_accounts` add column if not exists   `iban` varchar(100) default '';

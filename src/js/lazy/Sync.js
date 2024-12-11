@@ -55,7 +55,7 @@ Ext.define('Tualo.FinTS.Sync', {
                     xtype: 'component',
                     cls: 'lds-container-compact',
 
-                    html: '<i class="fa-solid fa-money-check-dollar"></i>'
+                    html: '<i class="fa-solid fa-money-check-dollar" style="font-size: 4rem;"></i>'
                         + '<div><h3>Kontoauszug</h3>'
                         + '<span>Klicken Sie auf weiter, um zu beginnen.</span></div>'
                 }
@@ -73,7 +73,7 @@ Ext.define('Tualo.FinTS.Sync', {
                 {
                     xtype: 'component',
                     cls: 'lds-container-compact',
-                    html: '<i class="fa-solid fa-money-check-dollar"></i>'
+                    html: '<i class="fa-solid fa-money-check-dollar" style="font-size: 4rem;"></i>'
                         + '<div><h3>Kontoauszug</h3>'
                         + '<span>Wählen Sie ein Konto aus.</span></div>'
                 },
@@ -140,7 +140,7 @@ Ext.define('Tualo.FinTS.Sync', {
                 {
                     xtype: 'component',
                     cls: 'lds-container-compact',
-                    html: '<i class="fa-solid fa-money-check-dollar"></i>'
+                    html: '<i class="fa-solid fa-money-check-dollar" style="font-size: 4rem;"></i>'
                         + '<div><h3>Kontoauszug</h3>'
                         + '<span>Geben Sie das Passwort ein.</span></div>'
                 },
@@ -167,7 +167,7 @@ Ext.define('Tualo.FinTS.Sync', {
                 {
                     xtype: 'component',
                     cls: 'lds-container-compact',
-                    html: '<i class="fa-solid fa-money-check-dollar"></i>'
+                    html: '<i class="fa-solid fa-money-check-dollar" style="font-size: 4rem;"></i>'
                         + '<div><h3>Kontoauszug</h3>'
                         + '<span>Wählen Sie ein Anmeldeverfahren.</span></div>'
                 },
@@ -199,8 +199,8 @@ Ext.define('Tualo.FinTS.Sync', {
                 {
                     xtype: 'component',
                     cls: 'lds-container-compact',
-                    html: '<div class=" "><div class="blobs-container"><div class="blob gray"></div></div></div>'
-                        + '<div><h3>Kontoauszug abrufen</h3>'
+                    html: '<i class="fa-solid fa-money-check-dollar" style="font-size: 4rem;"></i>'
+                        + '<div><h3>Kontoauszug</h3>'
                         + '<span>Geben Sie die TAN ein.</span></div>'
                 },
                 
@@ -215,7 +215,42 @@ Ext.define('Tualo.FinTS.Sync', {
             ]
         },
 
+        {
+            xtype: 'panel',
+            layout: {
+                type: 'vbox',
+                align: 'center'
+            },
+            itemId: 'statements',
+            items: [
+                {
+                    xtype: 'component',
+                    cls: 'lds-container-compact',
+                    html: '<i class="fa-solid fa-money-check-dollar" style="font-size: 4rem;"></i>'
+                        + '<div><h3>Kontoauszug</h3>'
+                        + '<span>Abrufen der Kontoauszüge</span></div>'
+                }
+            ]
+        },
         
+        {
+            xtype: 'panel',
+            layout: {
+                type: 'vbox',
+                align: 'center'
+            },
+            itemId: 'statements_done',
+            items: [
+                {
+                    xtype: 'component',
+                    cls: 'lds-container-compact',
+                    html: '<i class="fa-solid fa-money-check-dollar" style="font-size: 4rem;"></i>'
+                        + '<div><h3>Kontoauszug</h3>'
+                        + '<i class="fa-solid fa-square-check" style="font-size: 4rem;"></i>'
+                }
+            ]
+        },
+
         {
             id: 'card-1',
             html: '<p>Step 2 of 3</p><p>Almost there.  Please click the "Next" button to continue...</p>'
@@ -266,6 +301,7 @@ Ext.define('Tualo.FinTS.Sync', {
             me.getViewModel().set('accountTANModeID',modeID);
             if (!needsTanMedium){
                 next=next+1;
+                console.log('needsTanMedium','yyy');
                 me.getController().login(()=>{
                     me.next(next);
                 });
@@ -277,6 +313,15 @@ Ext.define('Tualo.FinTS.Sync', {
             me.getController().login(()=>{
                 me.next(next);
             });
+            return;
+        }else if (currentId=='statements'){
+            me.getController().statements(()=>{
+                console.log('statements');
+                me.next(next);
+            });
+            return;
+        }else if (currentId=='statements_done'){
+            Ext.util.History.back();
             return;
         }
 

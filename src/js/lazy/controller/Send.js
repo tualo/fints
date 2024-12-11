@@ -1,12 +1,20 @@
-Ext.define('Tualo.FinTS.controller.Sync', {
+Ext.define('Tualo.FinTS.controller.Send', {
     extend: 'Ext.app.ViewController',
-    alias: 'controller.fints_sync',
+    alias: 'controller.fints_send',
 
-    onReady: async function () {
+    onReady: function () {
+        
+        console.log('onReady',this.getViewModel().get('iban'));
+
+
+        /*
         let me = this,
             view = me.getView(),
             vm = view.getViewModel(),
             state = await fetch('./fints/state').then((response)=>{return response.json()});
+    
+        
+        console.log('onReady',me.getViewModel().get('iban'));
 
         if (state.success==false){
             Ext.toast({
@@ -16,11 +24,13 @@ Ext.define('Tualo.FinTS.controller.Sync', {
                 iconCls: 'fa fa-warning'
             });
         }
+            */
 
         
 
 
     },
+
 
     forceSelection: function(){
         let me = this,
@@ -33,6 +43,8 @@ Ext.define('Tualo.FinTS.controller.Sync', {
         
 
     },
+
+
 
     getTanModes:  async function(){
         let me = this,
@@ -146,79 +158,30 @@ Ext.define('Tualo.FinTS.controller.Sync', {
         cb();
     },
 
-    statements:  async function(cb){
+    transfer:  async function(cb){
         let me = this,
-            view = me.getView(),
-            m = me.getViewModel();
+        view = me.getView(),
+        m = me.getViewModel();
 
         const formData = new FormData();
-        formData.append("action", "getStatements");
+        formData.append("action", "transfer");
         formData.append("useaccount", m.get('selectedAccount').get('id'));
         formData.append("usepin", m.get('accountPassword'));
         formData.append("tanmode", m.get('accountTANModeID'));
         formData.append("tan", m.get('accountTAN'));
         formData.append("fints_accounts__banking_username", m.get('selectedAccount').get('banking_username'));
 
-        modes = await fetch('./fints/challenge',{
+        formData.append("iban", m.get('iban'));
+        formData.append("name", m.get('name'));
+        formData.append("text", m.get('text'));
+        formData.append("value", m.get('value'));
+
+        modes = await fetch('./fints/transfer',{
             method: "POST",
             body: formData,
         }).then((response)=>{return response.json()});
 
-        if (modes.success==false){
-
-            if (modes.msg=='This action requires a TAN to be completed.'){
-                Ext.Msg.prompt('TAN','Bitte gibt eine TAN zur Freigabe ein',(btn,txt)=>{
-                        if (btn){
-                            m.set('accountTAN',txt);
-                            me.submitTan(()=>{
-                                me.statements(cb);
-                            });
-                        }
-                },me,false,'')
-            }
-            Ext.toast({
-                html: modes.msg,
-                title: 'Fehler',
-                align: 't',
-                iconCls: 'fa fa-warning'
-            });
-        }else{
-            
-
-            if (modes.response.result=='needsTan'){
-                Ext.Msg.prompt('TAN','Bitte gibt eine TAN zur Freigabe ein',(btn,txt)=>{
-                        if (btn){
-                            m.set('accountTAN',txt);
-                            me.submitTan(()=>{
-                                me.statements(cb);
-                            });
-                        }
-                },me,false,'')
-                return;
-            }
-            
-            console.log('statements controller',modes);
-            /*
-            let recs=[];
-            modes.response.forEach((rec)=>{
-                recs.push(Ext.create('Tualo.FinTS.models.TanModes', rec))
-            })
-
-            m.getStore('tanmodes').loadRecords(recs);
-            me.getView().getComponent('tanmodes').getComponent('tanmodescombobox').select(recs[0]);
-            */
-            if (typeof cb=='function'){
-                cb();
-            }
-
-           return true;
-
-
-        }
-        view.enable()
-
     },
-
 
     clean:  async function(btn){
         let me = this,

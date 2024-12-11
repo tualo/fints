@@ -12,6 +12,7 @@ class Install extends CommandLineInstallSQL  implements ICommandline{
         'install/bankkonten.ds' => 'setup bankkonten.ds ',
         'install/fints_accounts' => 'setup fints_accounts ',
         'install/fints_accounts.ds' => 'setup fints_accounts.ds ',
+        'install/getNewKontoauszugID'=> 'setup getNewKontoauszugID ',
     ];
     
 }
