@@ -124,6 +124,54 @@ Ext.define('Tualo.FinTS.controller.Sync', {
 
     },
 
+    getTanMedia:  async function(cb){
+        let me = this,
+            view = me.getView(),
+            m = me.getViewModel();
+
+        const formData = new FormData();
+        formData.append("action", "getTanMedia");
+        formData.append("useaccount", m.get('selectedAccount').get('id'));
+        formData.append("usepin", m.get('accountPassword'));
+        formData.append("tanmode", m.get('accountTANModeID'));
+        formData.append("tan", m.get('accountTAN'));
+        formData.append("fints_accounts__banking_username", m.get('selectedAccount').get('banking_username'));
+
+        modes = await fetch('./fints/challenge',{
+            method: "POST",
+            body: formData,
+        }).then((response)=>{return response.json()});
+
+        if (modes.success==false){
+            Ext.toast({
+                html: modes.msg,
+                title: 'Fehler',
+                align: 't',
+                iconCls: 'fa fa-warning'
+            });
+        }else{
+            
+
+             /*
+            let recs=[];
+            modes.response.forEach((rec)=>{
+                recs.push(Ext.create('Tualo.FinTS.models.TanModes', rec))
+            })
+
+           
+            m.getStore('tanmodes').loadRecords(recs);
+            me.getView().getComponent('tanmodes').getComponent('tanmodescombobox').select(recs[0]);
+            */
+
+            if (typeof cb=='function'){
+                cb();
+            }
+
+        }
+        view.enable()
+
+    },
+
     submitTan:  async function(cb){
         let me = this,
             view = me.getView(),

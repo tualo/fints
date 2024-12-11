@@ -306,7 +306,15 @@ Ext.define('Tualo.FinTS.Sync', {
                     me.next(next);
                 });
                 return;
+            }else{
+                
+                me.getController().getTanModes(()=>{
+                    me.next(next);
+                });
+                return;
+                
             }
+
             me.next(next);
 
         }else if (currentId=='taninput'){

@@ -117,6 +117,7 @@ class Challenge implements IRoute{
                 $response = [];
 
 
+                /*
                 $fints_account = DSReadRoute::readSingleItem($db,'fints_accounts',array(
                     'filter'=>array(
                         array(
@@ -147,10 +148,10 @@ class Challenge implements IRoute{
                 $options->url = $fints_account['url'];
                 $options->bankCode = $fints_account['code'];
 
-                /*
+                / *
                 $credentials = \Fhp\Options\Credentials::create($fints_account['banking_username'], $_REQUEST['usepin']);
                 $persistedInstance = $persistedAction = null;
-                */
+                * / 
                 
                 $dt = new \DateTime();
                 $dt->add(new \DateInterval('P1D'));
@@ -196,7 +197,6 @@ class Challenge implements IRoute{
         
                 $persistedInstance = $persistedAction = null;
         
-        
                 $sessionfile = A::get('tempPath') . '/' .'.ht_fints_state';
                 if (file_exists($sessionfile)) {
                     
@@ -214,6 +214,7 @@ class Challenge implements IRoute{
                 A::result('response', $response);
                 A::result('success', true);
                 echo $sepaDD->toXML(); exit();
+        */
 
 
             }catch(\Exception $e){
