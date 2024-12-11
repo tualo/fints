@@ -308,11 +308,11 @@ Ext.define('Tualo.FinTS.Sync', {
                 return;
             }else{
                 
-                me.getController().getTanModes(()=>{
+                me.getController().getTanMedia(()=>{
                     me.next(next);
                 });
                 return;
-                
+
             }
 
             me.next(next);

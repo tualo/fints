@@ -129,6 +129,8 @@ Ext.define('Tualo.FinTS.controller.Sync', {
             view = me.getView(),
             m = me.getViewModel();
 
+            console.log('getTanMedia')
+            try{
         const formData = new FormData();
         formData.append("action", "getTanMedia");
         formData.append("useaccount", m.get('selectedAccount').get('id'));
@@ -136,6 +138,7 @@ Ext.define('Tualo.FinTS.controller.Sync', {
         formData.append("tanmode", m.get('accountTANModeID'));
         formData.append("tan", m.get('accountTAN'));
         formData.append("fints_accounts__banking_username", m.get('selectedAccount').get('banking_username'));
+
 
         modes = await fetch('./fints/challenge',{
             method: "POST",
@@ -169,6 +172,9 @@ Ext.define('Tualo.FinTS.controller.Sync', {
 
         }
         view.enable()
+    }catch(e){
+        console.log(e);
+    }
 
     },
 
