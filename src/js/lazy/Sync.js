@@ -194,22 +194,27 @@ Ext.define('Tualo.FinTS.Sync', {
                 type: 'vbox',
                 align: 'center'
             },
-            itemId: 'taninput',
+            itemId: 'tanmedia',
             items: [
                 {
                     xtype: 'component',
                     cls: 'lds-container-compact',
                     html: '<i class="fa-solid fa-money-check-dollar" style="font-size: 4rem;"></i>'
                         + '<div><h3>Kontoauszug</h3>'
-                        + '<span>Geben Sie die TAN ein.</span></div>'
+                        + '<span>Wähel Sie Ihr TAN System aus.</span></div>'
                 },
                 
                 {
-                    xtype: 'textfield',
-                    fieldLabel: 'TAN',
-                    inputType: 'password',
+                    xtype: 'combobox',
+                    itemId: 'tanmediacombobox',
+                    fieldLabel: 'Media',
+                    idField: 'id',
+                    displayField: 'name',
+                    queryMode: 'local',
+                    triggerAction: 'all',
                     bind: {
-                        value: '{accountTAN}'
+                        value: '{tanmedia}',
+                        store: '{tanmedias}'
                     }
                 }
             ]
@@ -298,6 +303,7 @@ Ext.define('Tualo.FinTS.Sync', {
                 needsTanMedium = match.get('needsTanMedium');
 
             console.log('needsTanMedium',needsTanMedium,next)
+            me.getViewModel().set('needsTanMedium',needsTanMedium);
             me.getViewModel().set('accountTANModeID',modeID);
             if (!needsTanMedium){
                 next=next+1;
@@ -317,7 +323,7 @@ Ext.define('Tualo.FinTS.Sync', {
 
             me.next(next);
 
-        }else if (currentId=='taninput'){
+        }else if (currentId=='tanmedia'){
             me.getController().login(()=>{
                 me.next(next);
             });

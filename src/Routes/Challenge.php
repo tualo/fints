@@ -46,7 +46,7 @@ class Challenge implements IRoute{
                         'needsTanMedium'=>false
                     );*/
                 
-                
+                // $fints->setTANMechanism(920, 'EigeneBezeichnung');
                 // if (false) {
                 
                 $fints_account = DSReadRoute::readSingleItem($db,'fints_accounts',array(

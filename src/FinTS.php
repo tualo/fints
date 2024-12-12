@@ -17,6 +17,7 @@ use nemiah\phpSepaXml\SEPATransfer;
 class FinTS
 {
 
+
     public static function handleRequest($request, \Fhp\FinTs $fints, $db, &$persistedAction)
     {
         // global $persistedAction;

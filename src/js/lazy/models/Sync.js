@@ -2,15 +2,17 @@ Ext.define('Tualo.FinTS.models.Sync', {
     extend: 'Ext.app.ViewModel',
     alias: 'viewmodel.fints_sync',
     requires: [
-        'Tualo.FinTS.models.TanModes'
+        'Tualo.FinTS.models.TanModes',
+        'Tualo.FinTS.models.TanMedias'
     ],
     data:{
+        needsTanMedium: false,
         interrupted: false,
         accountPassword: '',
         accountTANMode: '',
         accountTANModeID: '',
-        accountTAN: ''
-
+        accountTAN: '',
+        tanmedium: 'A'
     },
     formulas: {
         formtext: function(get){
@@ -28,6 +30,14 @@ Ext.define('Tualo.FinTS.models.Sync', {
         },
         tanmodes: {
             model: 'Tualo.FinTS.models.TanModes',
+            data: [/* */],
+            proxy: {
+                type: 'memory',
+                
+            }
+        },
+        tanmedias: {
+            model: 'Tualo.FinTS.models.TanMedias',
             data: [/* */],
             proxy: {
                 type: 'memory',

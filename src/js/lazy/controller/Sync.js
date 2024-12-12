@@ -61,14 +61,15 @@ Ext.define('Tualo.FinTS.controller.Sync', {
         }else{
             
 
-            
             let recs=[];
             modes.response.forEach((rec)=>{
                 recs.push(Ext.create('Tualo.FinTS.models.TanModes', rec))
             })
 
+        
             m.getStore('tanmodes').loadRecords(recs);
             me.getView().getComponent('tanmodes').getComponent('tanmodescombobox').select(recs[0]);
+           
 
 
         }
@@ -87,6 +88,10 @@ Ext.define('Tualo.FinTS.controller.Sync', {
         formData.append("usepin", m.get('accountPassword'));
         formData.append("tanmode", m.get('accountTANModeID'));
         formData.append("tan", m.get('accountTAN'));
+
+        if (me.getViewModel().get('needsTanMedium'))
+            formData.append("tanmedium", m.get('tanmedium'));
+        
         formData.append("fints_accounts__banking_username", m.get('selectedAccount').get('banking_username'));
 
         modes = await fetch('./fints/challenge',{
@@ -131,50 +136,49 @@ Ext.define('Tualo.FinTS.controller.Sync', {
 
             console.log('getTanMedia')
             try{
-        const formData = new FormData();
-        formData.append("action", "getTanMedia");
-        formData.append("useaccount", m.get('selectedAccount').get('id'));
-        formData.append("usepin", m.get('accountPassword'));
-        formData.append("tanmode", m.get('accountTANModeID'));
-        formData.append("tan", m.get('accountTAN'));
-        formData.append("fints_accounts__banking_username", m.get('selectedAccount').get('banking_username'));
+                const formData = new FormData();
+                formData.append("action", "getTanMedia");
+                formData.append("useaccount", m.get('selectedAccount').get('id'));
+                formData.append("usepin", m.get('accountPassword'));
+                formData.append("tanmode", m.get('accountTANModeID'));
+                formData.append("tan", m.get('accountTAN'));
+                formData.append("tanmedium", m.get('tanmedium'));
+                
+                formData.append("fints_accounts__banking_username", m.get('selectedAccount').get('banking_username'));
 
 
-        modes = await fetch('./fints/challenge',{
-            method: "POST",
-            body: formData,
-        }).then((response)=>{return response.json()});
+                modes = await fetch('./fints/challenge',{
+                    method: "POST",
+                    body: formData,
+                }).then((response)=>{return response.json()});
 
-        if (modes.success==false){
-            Ext.toast({
-                html: modes.msg,
-                title: 'Fehler',
-                align: 't',
-                iconCls: 'fa fa-warning'
-            });
-        }else{
-            
+                if (modes.success==false){
+                    Ext.toast({
+                        html: modes.msg,
+                        title: 'Fehler',
+                        align: 't',
+                        iconCls: 'fa fa-warning'
+                    });
+                }else{
+                    
 
-             /*
-            let recs=[];
-            modes.response.forEach((rec)=>{
-                recs.push(Ext.create('Tualo.FinTS.models.TanModes', rec))
-            })
+                    let recs=[];
+                    modes.response.forEach((rec)=>{
+                        recs.push(Ext.create('Tualo.FinTS.models.TanMedias', rec))
+                    })
+        
+                    m.getStore('tanmedias').loadRecords(recs);
+                    me.getView().getComponent('tanmedia').getComponent('tanmediascombobox').select(recs[0]);
+                    
+                    if (typeof cb=='function'){
+                        cb();
+                    }
 
-           
-            m.getStore('tanmodes').loadRecords(recs);
-            me.getView().getComponent('tanmodes').getComponent('tanmodescombobox').select(recs[0]);
-            */
-
-            if (typeof cb=='function'){
-                cb();
+                }
+                view.enable()
+            }catch(e){
+                console.log(e);
             }
-
-        }
-        view.enable()
-    }catch(e){
-        console.log(e);
-    }
 
     },
 
