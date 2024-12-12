@@ -168,7 +168,7 @@ Ext.define('Tualo.FinTS.controller.Sync', {
                     })
         
                     m.getStore('tanmedias').loadRecords(recs);
-                    me.getView().getComponent('tanmedia').getComponent('tanmediascombobox').select(recs[0]);
+                    // me.getView().getComponent('tanmedia').getComponent('tanmediascombobox').select(recs[0]);
                     
                     if (typeof cb=='function'){
                         cb();
