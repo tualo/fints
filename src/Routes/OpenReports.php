@@ -26,7 +26,7 @@ class OpenReports implements IRoute{
                 $sql = 'select id,name,tabellenzusatz,adress_bezug,preis_bezug,bezug_id,bezug_kst from blg_config';
                 $belege=$db->direct($sql,[],'id');
 
-                $sql = 'select id,name,lower(tabellenzusatz) tabellenzusatz,adress_bezug,preis_bezug,bw_faktor from blg_config';
+                $sql = 'select id,name,lower(tabellenzusatz) tabellenzusatz,adress_bezug,preis_bezug,bw_faktor,bezug_id,bezug_kst from blg_config';
                 $belege_tz = $db->direct($sql,[],'tabellenzusatz');
 
 
