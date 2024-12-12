@@ -11,3 +11,9 @@ require_once "Commands/Setup.php";
 require_once "Routes/Challenge.php";
 require_once "Routes/Clean.php";
 require_once "Routes/JsLoader.php";
+
+require_once "Routes/StatusButton.php";
+require_once "Routes/OpenReports.php";
+require_once "Routes/Accounts.php";
+require_once "Routes/Relations.php";
+
