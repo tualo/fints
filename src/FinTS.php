@@ -92,7 +92,7 @@ class FinTS
                 $bankkontenAppend = DSCreateRoute::createRecord($db, 'bankkonten', array('updateOnDuplicate' => 1), $request_record);
                 if ($bankkontenAppend === false) throw new \Exception('DS Bankkonten kann nicht geschrieben werden. '  );
                 */
-                $sql = "select if(cast( ifnull(max(buchungsdatum),'2017-01-01') as date)<date_add(current_date, interval -30 day), date_add(current_date, interval -30 day),  cast( ifnull(max(BUCHUNGSDATUM),'2017-01-01') as date) ) mdt  from kontoauszuege where  bankkonto={konto}";
+                $sql = "select if(cast( ifnull(max(buchungsdatum),'2017-01-01') as date)<date_add(current_date, interval -90 day), date_add(current_date, interval -90 day),  cast( ifnull(max(BUCHUNGSDATUM),'2017-01-01') as date) ) mdt  from kontoauszuege where  bankkonto={konto}";
                 $maxLastDate = $db->singleValue($sql, $request_record, 'mdt');
 
                 $from = new \DateTime($maxLastDate);
@@ -148,6 +148,7 @@ class FinTS
                             'empfaengername1' => $name,
                             'blz' => $xblz,
                             'kontonummer' => $xbankkonto,
+                            'verwendungszweck1' => $description1,
                             'verwendungszweck1' => $description1,
                             'verwendungszweck2' => $description2,
                             'verwendungszweck3' => $bookingtext,

@@ -23,15 +23,17 @@ class OpenReports implements IRoute{
             $db = A::get('session')->getDB();
             try{
                 
-                $sql = 'select id,name,tabellenzusatz,adress_bezug,preis_bezug from blg_config';
+                $sql = 'select id,name,tabellenzusatz,adress_bezug,preis_bezug,bezug_id,bezug_kst from blg_config';
                 $belege=$db->direct($sql,[],'id');
 
                 $sql = 'select id,name,lower(tabellenzusatz) tabellenzusatz,adress_bezug,preis_bezug,bw_faktor from blg_config';
                 $belege_tz = $db->direct($sql,[],'tabellenzusatz');
 
 
+                /*
                 $sql = 'select base_table,blg_table,name,id_column from bezug_config';
                 $bezug_config = $db->direct($sql,[],'base_table');
+                */
 
                 $sql = 'select table_name,displayfield,searchfield from ds';
                 $ds_config = $db->direct($sql,[],'table_name');
@@ -104,9 +106,9 @@ class OpenReports implements IRoute{
                     $tsql = str_replace('{bw_faktor}', $bw_faktor,$tsql);
                     $tsql = str_replace('{belegartid}', $beleg_index,$tsql);
 
-                    $tsql = str_replace('{bez}', $bezug_config[ $belege_tz[$tz]['adress_bezug'] ]['blg_table'] ,$tsql);
+                    $tsql = str_replace('{bez}', $belege_tz[$tz]['adress_bezug'] ,$tsql);
                     $tsql = str_replace('{dstable}', $belege_tz[$tz]['adress_bezug'],$tsql);
-                    $tsql = str_replace('{idcolumn}', $bezug_config[ $belege_tz[$tz]['adress_bezug'] ]['id_column'] ,$tsql);
+                    $tsql = str_replace('{idcolumn}', $belege_tz[$tz]['adress_bezug']['bezug_id'] ,$tsql);
                     $tsql = str_replace('{dsname}', $ds_config[ $belege_tz[$tz]['adress_bezug'] ]['displayfield'],$tsql);
                     $tsql = str_replace('{searchfield}', $ds_config[ $belege_tz[$tz]['adress_bezug'] ]['searchfield'],$tsql);
 
