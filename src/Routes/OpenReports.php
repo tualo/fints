@@ -108,7 +108,7 @@ class OpenReports implements IRoute{
 
                     $tsql = str_replace('{bez}', $belege_tz[$tz]['adress_bezug'] ,$tsql);
                     $tsql = str_replace('{dstable}', $belege_tz[$tz]['adress_bezug'],$tsql);
-                    $tsql = str_replace('{idcolumn}', $belege_tz[$tz]['adress_bezug']['bezug_id'] ,$tsql);
+                    $tsql = str_replace('{idcolumn}', $belege_tz[$tz]['bezug_id']  ,$tsql);
                     $tsql = str_replace('{dsname}', $ds_config[ $belege_tz[$tz]['adress_bezug'] ]['displayfield'],$tsql);
                     $tsql = str_replace('{searchfield}', $ds_config[ $belege_tz[$tz]['adress_bezug'] ]['searchfield'],$tsql);
 
