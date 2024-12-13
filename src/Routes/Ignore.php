@@ -20,7 +20,7 @@ class Ignore implements IRoute{
 
                 $sql = 'select id,name from kontoauszug_status';
                 $states = $db->direct($sql,[],'id');
-                $id = intval($_REQUEST['state_id']);
+                $id = intval($_REQUEST['formID']);
                 $state_id = intval($_REQUEST['state_id']);
                 if (isset($states[$state_id])){
                     $sql = 'update kontoauszuege set rechnungsnummer= {state} where id = {id}';

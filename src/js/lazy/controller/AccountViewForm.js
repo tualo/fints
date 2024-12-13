@@ -28,6 +28,7 @@ Ext.define('Tualo.FinTS.controller.AccountViewForm', {
     if (record) {
       console.log('select', record)
       var ds = this.findKNRN(record.data);
+
       this.getViewModel().set(ds);
       if (ds._state == 0) {
         this.findKN(record.data);
@@ -57,6 +58,7 @@ Ext.define('Tualo.FinTS.controller.AccountViewForm', {
   ignore: function (state_id) {
     return async function (cb) {
       var formID = this.getViewModel().get('id');
+
       // Ext.MessageBox.wait('Bitte warten ...', '');
 
       const formData = new FormData();
