@@ -21,7 +21,7 @@ Ext.define('Tualo.FinTS.controller.AccountViewGrid', {
   syncClicked: function(){
     Ext.getApplication().redirectTo('#fints/sync')
   },
-
+ 
   onStoreLoad: function (store, records) {
     if (this.checkedRecs) {
       this.checkedRecs.forEach(function (item) {

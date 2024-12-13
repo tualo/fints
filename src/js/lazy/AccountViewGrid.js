@@ -31,13 +31,20 @@ Ext.define('Tualo.FinTS.AccountViewGrid', {
       
         handler: 'syncClicked',
         tooltip: 'Bankdaten abrufen'
+      }, 
+  
+      {
+        xtype: 'glyphtool',
+        glyph: 'lightbulb',
+        handler: 'loopRequestClicked',
+        tooltip: 'Alle Testen'
       },
   
       {
         xtype: 'glyphtool',
-        glyph: 'ellipsis-v',
-        handler: 'loopRequestClicked',
-        tooltip: 'Alle Testen'
+        glyph: 'sync',
+        handler: 'refresh',
+        tooltip: 'Neu Laden'
       }
     ],
     columns: [
