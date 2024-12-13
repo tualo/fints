@@ -267,11 +267,14 @@ Ext.define('Tualo.FinTS.controller.AccountViewForm', {
     var num_list = v.replace(/[^\d]/g, '.').replace(/\.\./g, '.').replace(/(\.)+/g, '.').split('.');
     var treffer = [];
 
+    console.log('findKNRN',ds);
     for (var i = 0; i < data.length; i++) {
       if (
         (num_list.indexOf(data[i].belegnummer) > -1) &&
         (num_list.indexOf(data[i].bezugsnummer) > -1)
       ) {
+
+
         //exakter treffer
         if (data[i].offen * 1 == ds.betrag * 1) {
           ds._ist_status = '100% Treffer';
@@ -388,13 +391,69 @@ Ext.define('Tualo.FinTS.controller.AccountViewForm', {
     return ds;
   },
 
+
+  onBezugFieldChanged: function(fld,nv,ov){
+    var valuta=this.getViewModel().get('valuta');
+    var openstore=this.getViewModel().getStore('open');
+    /*openstore.filterBy(function(item){
+      if (item.get('bezugsnummer')==nv){
+        //if (item.get('datum')<=valuta){
+          return true;
+        //}
+      }
+    });
+    */
+    openstore.filter('bezugsnummer',nv);
+
+  },
+  onTagFieldChanged: function(fld,nv,ov){
+    var open = this.getViewModel().getStore('open').getRange();
+    var summe = 0;
+    open.forEach(function(item){
+      nv.forEach(function(bn){
+        if (item.get('belegnummer')==bn){
+          summe+=item.get('offen');
+        }
+      });
+    });
+    this.getViewModel().set('_ist_betrag',summe);
+    console.log('fld',nv,ov);
+  },
+  onTagFieldChangedAll: function(fld,nv,ov){
+    var me = this;
+    var allstore=this.getViewModel().getStore('all');
+    var record = allstore.getById(nv[nv.length-1]);
+    if (typeof this.allhash=='undefined'){
+      this.allhash={};
+    }
+    this.allhash[nv[nv.length-1]]=record;
+    var summe = 0;
+    for(var item in this.allhash){
+      if (this.allhash.hasOwnProperty(item)){
+        nv.forEach(function(bn){
+          if (item==bn){
+            summe+=me.allhash[item].get('offen');
+          }
+        });
+      }
+    }
+
+    this.getViewModel().set('_ist_betrag',summe);
+    console.log('fld',nv,ov,this.allhash);
+  },
+
   check: function(record,records){
     if (record){
       var ds = this.findKNRN(record.data);
+      console.log('check',ds)
       if (ds._state==0){
+        console.log('check',ds._state)
         this.findKN(record.data);
+
         if (ds._state!=0){
+          console.log('check',ds._state)
           if (ds._ist_betrag*1==record.get('betrag')*1){
+            console.log('check',ds._state)
             this.view.fireEvent('checked',record,2,records);
             return 2;
           }
