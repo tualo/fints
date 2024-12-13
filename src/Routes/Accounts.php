@@ -63,7 +63,7 @@ class Accounts implements IRoute{
                   verwendungszweck5,
                   rechnungsnummer
                   from kontoauszuege where rechnungsnummer is null
-                  and valuta > curdate() - interval 5 month
+                  and valuta > curdate() - interval 1 month
                   ) sub
                 ';
                 $data = $db->direct($sql);

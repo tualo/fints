@@ -34,7 +34,7 @@ Ext.define('Tualo.FinTS.AccountView', {
             xtype: 'fints_accountview_grid',
             title: 'Konto',
             height: 500,
-            flex: 2,
+            flex: 1,
             split: true,
             listeners: {
                 selectRecord: 'onSelectRecord',

@@ -23,7 +23,12 @@ Ext.define('Tualo.FinTS.AccountViewGrid', {
   
       {
         xtype: 'glyphtool',
+        /*
+        glyphPrefix: 'fa-solid fa-',
+        glyph: 'building-columns',
+        */
         glyph: 'money-check',
+      
         handler: 'syncClicked',
         tooltip: 'Bankdaten abrufen'
       },

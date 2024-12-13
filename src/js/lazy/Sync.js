@@ -29,7 +29,14 @@ Ext.define('Tualo.FinTS.Sync', {
 
     defaultListenerScope: true,
 
-    bbar: ['->',
+    bbar: [{
+        itemId: 'card-cancle',
+        text: 'Abbrechen',
+        handler: function(){
+            Ext.History.back()
+        },
+        disabled: false
+    },'->',
            {
                itemId: 'card-prev',
                text: '&laquo; Zurück',

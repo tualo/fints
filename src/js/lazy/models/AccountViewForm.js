@@ -5,6 +5,58 @@ Ext.define('Tualo.FinTS.models.AccountViewForm', {
         'Tualo.FinTS.models.TanModes'
     ],
     data:{
+      id: '',
+      betrag: 0,
+      valuta: new Date(),
+      name: ' ',
+      bezugsnummer:'',
+      belegnummer:'',
+      verwendungszweck:'',
+      svwz: '',
+      cred: '',
+      debt: '',
+      eref: '',
+      mref: '',
+      _ist_bezug: '',
+      _ist_beleg: [],
+      _force_beleg: [],
+      _ist_betrag: 0,
+      _ist_status: '',
+      _state: 0
+    },
+    formulas: {
+      canSave: function(get){
+        if (get('_ist_betrag')!=0){
+          return true;
+        }
+        if (get('_force_beleg').length!=0){
+          return true;
+        }
+  
+        return false;
+      },
+      datum_wert_id: function(get){
+        return Ext.util.Format.date(get('valuta'),'d.m.Y')+' / '+Ext.util.Format.number(get('betrag'),'0.000,00/i')+'€';
+      },
+      display_ist_betrag: function(get){
+        return Ext.util.Format.number(get('_ist_betrag'),'0.000,00/i')+'€';
+      },
+      display_status: function(get){
+        if (get('_ist_status')!=''){
+          return get('_ist_status');
+        }else{
+          if (get('betrag')==get('_ist_betrag')){
+            return 'Der Betrag stimmt überein.';
+          }
+          if (get('betrag')<get('_ist_betrag')){
+            return 'Der Kontobetrag ist kleiner als der offene Betrag des Beleges.';
+          }
+          if (get('betrag')>get('_ist_betrag')){
+            return 'Der Kontobetrag ist größer als der offene Betrag des Beleges.';
+          }
+        }
+        return '';
+      }
     },
     stores: {
         status: {

@@ -38,35 +38,36 @@ class OpenReports implements IRoute{
                 $sql = 'select table_name,displayfield,searchfield from ds';
                 $ds_config = $db->direct($sql,[],'table_name');
 
-                $tzlist = array('rechnung','krechnung');
+                $tzlist = ['rechnung','krechnung'];
+                // array('rechnung','krechnung');
                 $columns = $db->direct('select table_name,column_name from ds_column where  column_name<>"offen" ');
 
                 $sql_template = '
                     SELECT
-                    \'{tz}\' tabellenzusatz,
-                    \'{belegartid}\' belegartid,
-                    {bw_faktor} bw_faktor,
-                    blg_hdr_{tz}.id,
-                    blg_hdr_{tz}.id belegnummer,
-                    concat(blg_hdr_{tz}.id,\' \',blg_hdr_{tz}.datum, if(blg_hdr_{tz}.referenz<>\'\', concat(\' \',blg_hdr_{tz}.referenz),\'\'), \' \', round( {bw_faktor}*blg_hdr_{tz}.offen,2) ) _display,
-                    blg_hdr_{tz}.datum,
-                    blg_hdr_{tz}.buchungsdatum,
-                    blg_hdr_{tz}.faelligam,
-                    {dstable}.{dsname} name,
-                    
-                    {searchformula}
-                    blg_hdr_{tz}.zahlart,
-                    blg_hdr_{tz}.referenz,
-                    concat(blg_{bez}_{tz}.kundennummer,\'-\',blg_{bez}_{tz}.kostenstelle) bezugsnummer,
-                    {bw_faktor}*blg_hdr_{tz}.netto netto,
-                    {bw_faktor}*blg_hdr_{tz}.brutto brutto,
-                    {bw_faktor}*blg_hdr_{tz}.offen offen
+                        \'{tz}\' tabellenzusatz,
+                        \'{belegartid}\' belegartid,
+                        {bw_faktor} bw_faktor,
+                        blg_hdr_{tz}.id,
+                        blg_hdr_{tz}.id belegnummer,
+                        concat(blg_hdr_{tz}.id,\' \',blg_hdr_{tz}.datum, if(blg_hdr_{tz}.referenz<>\'\', concat(\' \',blg_hdr_{tz}.referenz),\'\'), \' \', round( {bw_faktor}*blg_hdr_{tz}.offen,2) ) _display,
+                        blg_hdr_{tz}.datum,
+                        blg_hdr_{tz}.buchungsdatum,
+                        blg_hdr_{tz}.faelligam,
+                        {dstable}.{dsname} name,
+                        
+                        {searchformula}
+                        blg_hdr_{tz}.zahlart,
+                        blg_hdr_{tz}.referenz,
+                        concat(blg_{bez}_{tz}.kundennummer,\'-\',blg_{bez}_{tz}.kostenstelle) bezugsnummer,
+                        {bw_faktor}*blg_hdr_{tz}.netto netto,
+                        {bw_faktor}*blg_hdr_{tz}.brutto brutto,
+                        {bw_faktor}*blg_hdr_{tz}.offen offen
                     FROM
-                    blg_hdr_{tz} join blg_{bez}_{tz}
-                        on blg_{bez}_{tz}.id = blg_hdr_{tz}.id
-                    join view_readtable_{dstable} {dstable}
-                        on {dstable}.{idcolumn} = blg_{bez}_{tz}.kundennummer
-                        {kst_concat}
+                        blg_hdr_{tz} join blg_{bez}_{tz}
+                            on blg_{bez}_{tz}.id = blg_hdr_{tz}.id
+                        join view_readtable_{dstable} {dstable}
+                            on {dstable}.{idcolumn} = blg_{bez}_{tz}.kundennummer
+                            {kst_concat}
 
 
                 ';

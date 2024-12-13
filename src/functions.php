@@ -16,4 +16,6 @@ require_once "Routes/StatusButton.php";
 require_once "Routes/OpenReports.php";
 require_once "Routes/Accounts.php";
 require_once "Routes/Relations.php";
+require_once "Routes/Ignore.php";
+require_once "Routes/Save.php";
 
