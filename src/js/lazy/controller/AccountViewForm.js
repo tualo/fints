@@ -384,5 +384,25 @@ Ext.define('Tualo.FinTS.controller.AccountViewForm', {
     }
 
     return ds;
+  },
+
+  check: function(record,records){
+    if (record){
+      var ds = this.findKNRN(record.data);
+      if (ds._state==0){
+        this.findKN(record.data);
+        if (ds._state!=0){
+          if (ds._ist_betrag*1==record.get('betrag')*1){
+            this.view.fireEvent('checked',record,2,records);
+            return 2;
+          }
+        }
+      }else{
+        this.view.fireEvent('checked',record,1,records);
+        return 1;
+      }
+    }
+    this.view.fireEvent('checked',record,0,records);
+    return 0;
   }
 });

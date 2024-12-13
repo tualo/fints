@@ -9,6 +9,15 @@ Ext.define('Tualo.FinTS.controller.AccountViewGrid', {
 
   },
 
+  loopRequestClicked: function(){
+    this.checkedRecs=[];
+    this.loopRequest(this.getViewModel().getStore('kontoauszug').getRange());
+  },
+  loopRequest: function(records){
+    if (records.length>0){
+      this.view.fireEvent('checkRecord',records[0],records.slice(1));
+    }
+  },
   syncClicked: function(){
     Ext.getApplication().redirectTo('#fints/sync')
   },
