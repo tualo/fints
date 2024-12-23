@@ -10,7 +10,8 @@
     ],
     "require": {
         "nemiah/php-fints": "*",
-        "nemiah/php-sepa-xml": "*"
+        "nemiah/php-sepa-xml": "*",
+        "digitick/sepa-xml" : "1.1.*"
     },
     "minimum-stability": "dev",
     "autoload": {

@@ -351,6 +351,8 @@ Ext.define('Tualo.FinTS.Send', {
     
             
             me.getController().forceSelection();
+
+            
             if (currentId=='accountPassword'){
                 me.getController().getTanModes();
                 me.next(next);
@@ -380,7 +382,7 @@ Ext.define('Tualo.FinTS.Send', {
                     me.next(next);
                 });
                 return;
-            }else if (currentId=='transfer'){
+            }else  if (currentId=='transfer'){
                 me.getController().transfer(()=>{
                     me.next(next);
                 });

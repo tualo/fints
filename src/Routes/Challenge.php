@@ -13,6 +13,9 @@ use nemiah\phpSepaXml\SEPADirectDebitBasic;
 use nemiah\phpSepaXml\SEPATransfer;
 use nemiah\phpSepaXml\SEPAFile;
 
+use Tualo\Office\FinTS\Sepa;
+
+
 class Challenge implements IRoute{
     public static function register(){
         Route::add('/fints/challenge',function($matches){
@@ -97,6 +100,10 @@ class Challenge implements IRoute{
         Route::add('/fints/transfer',function(){
             $db = A::get('session')->getDB();
             try{
+
+                $xml = Sepa::createCustomerCredit( );
+                // echo $xml; exit();
+
                 if (!class_exists("\Fhp\Options\Credentials")){
                     throw new \Exception("fints not installed");
                 }
@@ -117,7 +124,7 @@ class Challenge implements IRoute{
                 $response = [];
 
 
-                /*
+
                 $fints_account = DSReadRoute::readSingleItem($db,'fints_accounts',array(
                     'filter'=>array(
                         array(
@@ -140,7 +147,8 @@ class Challenge implements IRoute{
                 ));
                 if ($bankkonten===false) throw new \Exception('Das Konto konnte nicht ermittelt werden');
 
-                
+                                /*
+
                 // include_once __DIR__.'/classes/FinTS.php';
                 $options = new \Fhp\Options\FinTsOptions();
                 $options->productName = A::configuration('fhp','FHP_REGISTRATION_NO');
@@ -179,10 +187,9 @@ class Challenge implements IRoute{
                     'reqestedExecutionDate' => $dt,
                 ]));
 
+                */
 
-
-                $xml=  str_replace('urn:iso:std:iso:20022:tech:xsd:pain.001.003.03', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03', $sepaDD->toXML());
-
+                
                 $_REQUEST['sepa_xml'] = $xml;
 
                 //echo $xml; exit();
@@ -213,17 +220,15 @@ class Challenge implements IRoute{
 
                 A::result('response', $response);
                 A::result('success', true);
-                echo $sepaDD->toXML(); exit();
-        */
 
-
+                
             }catch(\Exception $e){
 
                 A::result('last_sql', $db->last_sql );
                 A::result('msg', $e->getMessage());
             }
             A::contenttype('application/json');
-        },['post'],true);
+        },['post','get'],true);
 
     }
 }
