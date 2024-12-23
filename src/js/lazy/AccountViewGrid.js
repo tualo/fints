@@ -108,7 +108,18 @@ Ext.define('Tualo.FinTS.AccountViewGrid', {
         dataIndex: 'mref',
         header: 'Sepa-Mandatsreferenz',
         hidden: true
+      },
+      {
+        dataIndex: 'empfaengername1',
+        header: 'Empfaengername1',
+        hidden: true
+      },
+      {
+        dataIndex: 'empfaengername2',
+        header: 'Empfaengername2',
+        hidden: true
       }
+      
   
     ]
   });
