@@ -2,6 +2,8 @@
 
 namespace Tualo\Office\FinTS;
 
+use Tualo\Office\DS\DSReadRoute;
+
 use Tualo\Office\Basic\TualoApplication as A;
 use Fhp\CurlException;
 use Fhp\Protocol\ServerException;
@@ -48,7 +50,7 @@ class FinTS
                 return [
 
                     'result' => 'success',
-                    'needsTan'=>'false',
+                    'needsTan' => 'false',
                     'needsTanV' => $login->needsTan()
                 ];
             case 'submitTan':
@@ -63,20 +65,122 @@ class FinTS
             case 'getStatements':
 
                 $getAccounts = \Fhp\Action\GetSEPAAccounts::create();
-                
+
                 $fints->execute($getAccounts); // We assume that needsTan() is always false here.
                 if ($getAccounts->needsTan()) {
                     $tanRequest = $getAccounts->getTanRequest();
                     $persistedAction = serialize($getAccounts);
-                    return ['result' => 'needsTan','fromAction'=>'getStatements', 'challenge' => $tanRequest->getChallenge()];
+                    return ['result' => 'needsTan', 'fromAction' => 'getStatements', 'challenge' => $tanRequest->getChallenge()];
                     // handleStrongAuthentication($getAccounts); // See login.php for the implementation.
                 }
-                
-
-                $oneAccount = $getAccounts->getAccounts()[0];
 
 
+                //                $oneAccount = $getAccounts->getAccounts()[0];
 
+                $fints_account = DSReadRoute::readSingleItem($db, 'fints_accounts', array(
+                    'filter' => array(
+                        array(
+                            'property' => 'id',
+                            'operator' => 'eq',
+                            'value' => $_REQUEST['useaccount']
+                        )
+                    )
+                ));
+                foreach ($getAccounts->getAccounts() as $oneAccount) {
+                    if ($fints_account['iban'] == $oneAccount->getIban()) {
+                        $request_record = array(
+                            'konto' => $oneAccount->getIban(),
+                            'kontonummer' => $oneAccount->getAccountNumber(),
+                            'blz' => $oneAccount->getBlz(),
+                            'bic' => $oneAccount->getBic(),
+                            'waehrung' => $oneAccount->getSubAccount(),
+                            'last_fints_query' => date('Y-m-d H:i:s')
+                        );
+                        $sql = "select if(cast( ifnull(max(buchungsdatum),'2017-01-01') as date)<date_add(current_date, interval -90 day), date_add(current_date, interval -90 day),  cast( ifnull(max(BUCHUNGSDATUM),'2017-01-01') as date) ) mdt  from kontoauszuege where  bankkonto={konto}";
+                        $maxLastDate = $db->singleValue($sql, $request_record, 'mdt');
+                        $from = new \DateTime($maxLastDate);
+                        $to = new \DateTime();
+
+                        $getStatement = \Fhp\Action\GetStatementOfAccount::create($oneAccount, $from, $to);
+
+                        if ($getStatement->needsTan()) {
+                            $tanRequest = $getStatement->getTanRequest();
+                            $persistedAction = serialize($getStatement);
+                            return ['result' => 'needsTan', 'fromAction' => 'getStatements', 'challenge' => $tanRequest->getChallenge()];
+                            // handleStrongAuthentication($getAccounts); // See login.php for the implementation.
+                        }
+
+                        $fints->execute($getStatement);
+
+
+                        if ($getStatement->needsTan()) {
+                            $tanRequest = $getStatement->getTanRequest();
+                            $persistedAction = serialize($getStatement);
+                            return ['result' => 'needsTan', 'fromAction' => 'getStatements', 'challenge' => $tanRequest->getChallenge()];
+                            // handleStrongAuthentication($getAccounts); // See login.php for the implementation.
+                        }
+
+
+                        $soa = $getStatement->getStatement();
+                        foreach ($soa->getStatements() as $statement) {
+                            $statement->getDate()->format('Y-m-d');
+                            $kontostand = $statement->getStartBalance();
+
+                            foreach ($statement->getTransactions() as $transaction) {
+                                $factor = ($transaction->getCreditDebit() == \Fhp\Model\StatementOfAccount\Statement::CD_DEBIT ? -1 : 1);
+                                $amount = $factor * $transaction->getAmount();
+                                $name = $transaction->getName();
+                                $bookingtext = $transaction->getBookingText();
+                                $description1 = $transaction->getDescription1();
+                                $description2 = $transaction->getDescription2();
+                                $bookingdate = $transaction->getBookingDate()->format('Y-m-d');
+                                $vaultadate = $transaction->getValutaDate()->format('Y-m-d');
+                                $xblz = $transaction->getBankCode();
+                                $xbankkonto = $transaction->getAccountNumber();
+
+                                // $transaction->getEndToEndID()
+
+                                $kontostand += $amount;
+                                $hash = array(
+                                    'bankkonto' => $request_record['konto'],
+                                    'buchungsdatum' => $bookingdate,
+                                    'valuta' => $vaultadate,
+                                    'betrag' => $amount,
+                                    'waehrung' => $request_record['waehrung'],
+                                    'empfaengername1' => $name,
+                                    'blz' => $xblz,
+                                    'kontonummer' => $xbankkonto,
+                                    'verwendungszweck1' => $description1,
+                                    'verwendungszweck1' => $description1,
+                                    'verwendungszweck2' => $description2,
+                                    'verwendungszweck3' => $bookingtext,
+                                    // not the best, but may fit
+                                    'uniqueid' => $vaultadate . $amount . $description1 . $description2 . $bookingtext,
+                                    'kontostand' => $kontostand
+                                );
+                                A::result('hash', $hash);
+
+                                $kontoauszuege = \Tualo\Office\DS\DSTable::instance('kontoauszuege');
+                                $kontoauszuege->insert($hash);
+                                /*
+                        $knres = DSCreateRoute::createRecord($db, 'kontoauszuege', array('updateOnDuplicate' => 1), $hash);
+                        if ($knres === false) throw new \Exception('Der Kontoauszug kann nicht geschrieben werden. ' );
+                        */
+                            }
+                        }
+                    }
+
+
+                    /*
+                    
+                    A::result('request_record', $request_record);
+                    $bankkontenAppend = DSCreateRoute::createRecord($db, 'bankkonten', array('updateOnDuplicate' => 1), $request_record);
+                    if ($bankkontenAppend === false) throw new \Exception('DS Bankkonten kann nicht geschrieben werden. '  );
+                    */
+                }
+
+
+                /*
                 $request_record = array(
                     'konto' => $oneAccount->getIban(),
                     'kontonummer' => $oneAccount->getAccountNumber(),
@@ -87,85 +191,21 @@ class FinTS
                 );
 
                 A::result('request_record', $request_record);
-
+                */
                 /*
                 $bankkontenAppend = DSCreateRoute::createRecord($db, 'bankkonten', array('updateOnDuplicate' => 1), $request_record);
                 if ($bankkontenAppend === false) throw new \Exception('DS Bankkonten kann nicht geschrieben werden. '  );
                 */
+
+                /*
                 $sql = "select if(cast( ifnull(max(buchungsdatum),'2017-01-01') as date)<date_add(current_date, interval -90 day), date_add(current_date, interval -90 day),  cast( ifnull(max(BUCHUNGSDATUM),'2017-01-01') as date) ) mdt  from kontoauszuege where  bankkonto={konto}";
                 $maxLastDate = $db->singleValue($sql, $request_record, 'mdt');
-
                 $from = new \DateTime($maxLastDate);
-
                 $to = new \DateTime();
+
                 $oneAccount = $getAccounts->getAccounts()[0];
-                $getStatement = \Fhp\Action\GetStatementOfAccount::create($oneAccount, $from, $to);
 
-                if ($getStatement->needsTan()) {
-                    $tanRequest = $getStatement->getTanRequest();
-                    $persistedAction = serialize($getStatement);
-                    return ['result' => 'needsTan','fromAction'=>'getStatements', 'challenge' => $tanRequest->getChallenge()];
-                    // handleStrongAuthentication($getAccounts); // See login.php for the implementation.
-                }
-                
-                $fints->execute($getStatement);
-
-
-                if ($getStatement->needsTan()) {
-                    $tanRequest = $getStatement->getTanRequest();
-                    $persistedAction = serialize($getStatement);
-                    return ['result' => 'needsTan','fromAction'=>'getStatements', 'challenge' => $tanRequest->getChallenge()];
-                    // handleStrongAuthentication($getAccounts); // See login.php for the implementation.
-                }
-                
-
-                $soa = $getStatement->getStatement();
-                foreach ($soa->getStatements() as $statement) {
-                    $statement->getDate()->format('Y-m-d');
-                    $kontostand = $statement->getStartBalance();
-
-                    foreach ($statement->getTransactions() as $transaction) {
-                        $factor = ($transaction->getCreditDebit() == \Fhp\Model\StatementOfAccount\Statement::CD_DEBIT ? -1 : 1);
-                        $amount = $factor * $transaction->getAmount();
-                        $name = $transaction->getName();
-                        $bookingtext = $transaction->getBookingText();
-                        $description1 = $transaction->getDescription1();
-                        $description2 = $transaction->getDescription2();
-                        $bookingdate = $transaction->getBookingDate()->format('Y-m-d');
-                        $vaultadate = $transaction->getValutaDate()->format('Y-m-d');
-                        $xblz = $transaction->getBankCode();
-                        $xbankkonto = $transaction->getAccountNumber();
-
-                        // $transaction->getEndToEndID()
-
-                        $kontostand += $amount;
-                        $hash = array(
-                            'bankkonto' => $request_record['konto'],
-                            'buchungsdatum' => $bookingdate,
-                            'valuta' => $vaultadate,
-                            'betrag' => $amount,
-                            'waehrung' => $request_record['waehrung'],
-                            'empfaengername1' => $name,
-                            'blz' => $xblz,
-                            'kontonummer' => $xbankkonto,
-                            'verwendungszweck1' => $description1,
-                            'verwendungszweck1' => $description1,
-                            'verwendungszweck2' => $description2,
-                            'verwendungszweck3' => $bookingtext,
-                            // not the best, but may fit
-                            'uniqueid' => $vaultadate . $amount . $description1 . $description2 . $bookingtext,
-                            'kontostand' => $kontostand
-                        );
-                        A::result('hash', $hash);
-
-                        $kontoauszuege = \Tualo\Office\DS\DSTable::instance('kontoauszuege');
-                        $kontoauszuege->insert($hash);
-                        /*
-                        $knres = DSCreateRoute::createRecord($db, 'kontoauszuege', array('updateOnDuplicate' => 1), $hash);
-                        if ($knres === false) throw new \Exception('Der Kontoauszug kann nicht geschrieben werden. ' );
-                        */
-                    }
-                }
+                */
 
             case 'logout':
                 $fints->close();
@@ -180,9 +220,9 @@ class FinTS
                 if ($getAccounts->needsTan()) {
                     $tanRequest = $getAccounts->getTanRequest();
                     $persistedAction = serialize($getAccounts);
-                    return ['result' => 'needsTan','fromAction'=>'getStatements', 'challenge' => $tanRequest->getChallenge()];
+                    return ['result' => 'needsTan', 'fromAction' => 'getStatements', 'challenge' => $tanRequest->getChallenge()];
                 }
-                
+
 
                 $oneAccount = $getAccounts->getAccounts()[0];
 
