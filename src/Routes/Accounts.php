@@ -1,18 +1,22 @@
 <?php
+
 namespace Tualo\Office\FinTS\Routes;
+
 use Tualo\Office\Basic\TualoApplication as A;
 use Tualo\Office\Basic\Route;
 use Tualo\Office\Basic\IRoute;
 
 
-class Accounts implements IRoute{
-    public static function register(){
-        Route::add('/fints/accounts',function($matches){
+class Accounts implements IRoute
+{
+  public static function register()
+  {
+    Route::add('/fints/accounts', function ($matches) {
 
-            $db = A::get('session')->getDB();
-            try{
-                
-                $sql = '
+      $db = A::get('session')->getDB();
+      try {
+
+        $sql = '
                   select
                     id,
                     bankkonto,
@@ -63,21 +67,19 @@ class Accounts implements IRoute{
                   verwendungszweck5,
                   rechnungsnummer
                   from kontoauszuege where rechnungsnummer is null
-                  and valuta > curdate() - interval 1 month
+                  and valuta > curdate() - interval 5 month
                   ) sub
                 ';
-                $data = $db->direct($sql);
-                A::result('data', $data);
-                A::result('total', count($data));
-                A::result('success', true);
-                
-            }catch(\Exception $e){
-        
-                A::result('last_sql', $db->last_sql );
-                A::result('msg', $e->getMessage());
-            }
-            A::contenttype('application/json');
-        },array('get'),true);
+        $data = $db->direct($sql);
+        A::result('data', $data);
+        A::result('total', count($data));
+        A::result('success', true);
+      } catch (\Exception $e) {
 
-    }
+        A::result('last_sql', $db->last_sql);
+        A::result('msg', $e->getMessage());
+      }
+      A::contenttype('application/json');
+    }, array('get'), true);
+  }
 }
