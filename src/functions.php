@@ -18,4 +18,4 @@ require_once "Routes/Accounts.php";
 require_once "Routes/Relations.php";
 require_once "Routes/Ignore.php";
 require_once "Routes/Save.php";
-
+require_once "Routes/ResetAccountItem.php";
