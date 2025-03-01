@@ -215,7 +215,7 @@ Ext.define('Tualo.FinTS.Sync', {
                     xtype: 'combobox',
                     itemId: 'tanmediacombobox',
                     fieldLabel: 'Media',
-                    idField: 'id',
+                    idField: 'name',
                     displayField: 'name',
                     queryMode: 'local',
                     triggerAction: 'all',
