@@ -35,7 +35,7 @@ class FinTS
                 }, array_values($fints->getTanModes()));
             case 'getTanMedia':
                 return array_map(function ($medium) {
-                    return ['name' => $medium->getName(), 'phoneNumber' => $medium->getPhoneNumber()];
+                    return ['id' => $medium->getName(),'name' => $medium->getName(), 'phoneNumber' => $medium->getPhoneNumber()];
                 }, $fints->getTanMedia(intval($request['tanmode'])));
             case 'login':
                 $fints->selectTanMode(intval($request['tanmode']), $request['tanmedium'] ?? null);
