@@ -221,7 +221,7 @@ Ext.define('Tualo.FinTS.Sync', {
                     queryMode: 'local',
                     triggerAction: 'all',
                     bind: {
-                        value: '{tanmedia}',
+                        value: '{tanmedium}',
                         store: '{tanmedias}'
                     }
                 }
