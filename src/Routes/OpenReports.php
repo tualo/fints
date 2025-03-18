@@ -34,15 +34,14 @@ class OpenReports implements IRoute
                 $belege_tz = $db->direct($sql, [], 'tabellenzusatz');
 
 
-                /*
-                $sql = 'select base_table,blg_table,name,id_column from bezug_config';
-                $bezug_config = $db->direct($sql,[],'base_table');
-                */
-
                 $sql = 'select table_name,displayfield,searchfield from ds';
                 $ds_config = $db->direct($sql, [], 'table_name');
 
-                $tzlist = ['rechnung', 'krechnung'];
+                $tzlist = [];
+                foreach ($belege_tz as $beleg) {
+                    $tzlist[] = $beleg['tabellenzusatz'];
+                }
+                // ['rechnung', 'krechnung'];
                 // array('rechnung','krechnung');
                 $columns = $db->direct('select table_name,column_name from ds_column where  column_name<>"offen" ');
 
