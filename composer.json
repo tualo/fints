@@ -11,7 +11,7 @@
   "require": {
     "nemiah/php-fints": "~3.6.0",
     "nemiah/php-sepa-xml": "~1.2",
-    "digitick/sepa-xml": "1.1.*"
+    "digitick/sepa-xml": "~1.1.0"
   },
   "minimum-stability": "dev",
   "autoload": {
@@ -22,5 +22,5 @@
       "src/functions.php"
     ]
   },
-  "version": "1.0.2"
+  "version": "1.0.3"
 }
