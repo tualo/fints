@@ -29,8 +29,10 @@ class JsLoader implements IRoute
                     $matches['file'] . '.js',
                     dirname(__DIR__, 1) . '/js/',
                     ['js'],
-                    ['application/javascript']
-                );                
+                    [
+                        'js' => ['application/javascript']
+                    ]
+                );
                 /*
                 App::etagFile(dirname(__DIR__, 1) . '/js/' . $matches['file'] . '.js', true);
                 BasicRoute::$finished = true;
