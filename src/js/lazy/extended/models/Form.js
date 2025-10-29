@@ -35,7 +35,7 @@ Ext.define('Tualo.FinTS.lazy.extended.models.Form', {
             if (d == 0) {
                 return true;
             }
-            return false;
+            return true;
         },
 
 

@@ -35,7 +35,7 @@ class FinTS
                 }, array_values($fints->getTanModes()));
             case 'getTanMedia':
                 return array_map(function ($medium) {
-                    return ['id' => $medium->getName(),'name' => $medium->getName(), 'phoneNumber' => $medium->getPhoneNumber()];
+                    return ['id' => $medium->getName(), 'name' => $medium->getName(), 'phoneNumber' => $medium->getPhoneNumber()];
                 }, $fints->getTanMedia(intval($request['tanmode'])));
             case 'login':
                 $fints->selectTanMode(intval($request['tanmode']), $request['tanmedium'] ?? null);
@@ -154,14 +154,28 @@ class FinTS
                                     'verwendungszweck1' => $description1,
                                     'verwendungszweck2' => $description2,
                                     'verwendungszweck3' => $bookingtext,
+
                                     // not the best, but may fit
                                     'uniqueid' => $vaultadate . $amount . $description1 . $description2 . $bookingtext,
                                     'kontostand' => $kontostand
+
                                 );
                                 A::result('hash', $hash);
 
-                                $kontoauszuege = \Tualo\Office\DS\DSTable::instance('kontoauszuege');
-                                $kontoauszuege->insert($hash);
+                                $r = $db->direct(
+                                    'select 1 from kontoauszuege where  uniqueid={uniqueid} limit 1',
+                                    [
+                                        'uniqueid' => $hash['uniqueid']
+                                    ]
+                                );
+                                if (count($r) == 0) {
+
+                                    $kontoauszuege = \Tualo\Office\DS\DSTable::instance('kontoauszuege');
+                                    $kontoauszuege->insert($hash, [
+                                        'ignore' => true,
+                                        'updateOnDuplicate' => false
+                                    ]);
+                                }
                                 /*
                         $knres = DSCreateRoute::createRecord($db, 'kontoauszuege', array('updateOnDuplicate' => 1), $hash);
                         if ($knres === false) throw new \Exception('Der Kontoauszug kann nicht geschrieben werden. ' );
