@@ -7,7 +7,7 @@ use Tualo\Office\Basic\Route as BasicRoute;
 use Tualo\Office\Basic\IRoute;
 use Tualo\Office\Basic\RouteSecurityHelper;
 
-class JsLoader implements IRoute
+class JsLoader extends \Tualo\Office\Basic\RouteWrapper
 {
     public static function register()
     {

@@ -7,7 +7,7 @@ use Tualo\Office\Basic\Route;
 use Tualo\Office\Basic\IRoute;
 
 
-class Accounts implements IRoute
+class Accounts extends \Tualo\Office\Basic\RouteWrapper
 {
   public static function register()
   {

@@ -7,7 +7,7 @@ use Tualo\Office\Basic\Route;
 use Tualo\Office\Basic\IRoute;
 
 
-class OpenReports implements IRoute
+class OpenReports extends \Tualo\Office\Basic\RouteWrapper
 {
 
     public static function columns_table_name_filter($array, $table_name)

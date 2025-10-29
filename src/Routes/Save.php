@@ -8,7 +8,7 @@ use Tualo\Office\Basic\IRoute;
 use Tualo\Office\Report\Report;
 
 
-class Save implements IRoute
+class Save extends \Tualo\Office\Basic\RouteWrapper
 {
     public static function register()
     {
@@ -34,7 +34,7 @@ class Save implements IRoute
                         );
 
                         $result['dbg'][] = $res;
-                        if ($res>=0) {
+                        if ($res >= 0) {
                             $sql = '
                             update
                                 kontoauszuege
@@ -49,7 +49,7 @@ class Save implements IRoute
                             $result['success'] = true;
                         } else {
                             $result['success'] = false;
-                            
+
                             break;
                         }
 
@@ -74,7 +74,6 @@ class Save implements IRoute
                     $db->execute('rollback');
                 }
                 A::result('success', $result['success']);
-
             } catch (\Exception $e) {
 
                 A::result('last_sql', $db->last_sql);

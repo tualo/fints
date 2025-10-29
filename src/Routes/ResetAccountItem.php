@@ -7,7 +7,7 @@ use Tualo\Office\Basic\Route;
 use Tualo\Office\Basic\IRoute;
 
 
-class ResetAccountItem implements IRoute
+class ResetAccountItem extends \Tualo\Office\Basic\RouteWrapper
 {
     public static function register()
     {
