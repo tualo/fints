@@ -9,7 +9,7 @@
     }
   ],
   "require": {
-    "nemiah/php-fints": "~3.6.0",
+    "nemiah/php-fints": "~3.7.0",
     "nemiah/php-sepa-xml": "~1.2",
     "digitick/sepa-xml": "~1.1.0"
   },
