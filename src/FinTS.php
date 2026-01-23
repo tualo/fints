@@ -101,7 +101,34 @@ class FinTS
                         $from = new \DateTime($maxLastDate);
                         $to = new \DateTime();
 
-                        $getStatement = \Fhp\Action\GetStatementOfAccount::create($oneAccount, $from, $to);
+                        $bpd = $fints->getBPD();
+                        $hikazs = $bpd->getLatestSupportedParameters('HIKAZS');
+                        $supportsMt940 = $hikazs !== null ? true : false;
+
+                        //$getStatement = \Fhp\Action\GetStatementOfAccount::create($oneAccount, $from, $to);
+
+                        if ($supportsMt940) {
+                            $getStatement = \Fhp\Action\GetStatementOfAccount::create(
+                                account: $oneAccount,
+                                from: $from,
+                                to: $to,
+                                allAccounts: false,
+                                includeUnbooked: false
+                            );
+                        } else {
+                            $getStatement = \Fhp\Action\GetStatementOfAccountXML::create(
+                                account: $oneAccount,
+                                from: $from,
+                                to: $to,
+                                allAccounts: false
+                            );
+                        }
+
+                        $fints->execute($getStatement);
+
+                        if ($getStatement->needsTan()) {
+                            // handle tan stuff
+                        }
 
                         if ($getStatement->needsTan()) {
                             $tanRequest = $getStatement->getTanRequest();
