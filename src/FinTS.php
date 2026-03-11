@@ -89,7 +89,7 @@ class FinTS
 
                 A::result('log', "a");
                 foreach ($getAccounts->getAccounts() as $oneAccount) {
-                    A::result('log', "b");
+                    A::result('log_', "b", $oneAccount->getIban());
                     if ($fints_account['iban'] == $oneAccount->getIban()) {
                         $request_record = array(
                             'konto' => $oneAccount->getIban(),
