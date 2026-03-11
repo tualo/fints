@@ -86,7 +86,10 @@ class FinTS
                         )
                     )
                 ));
+
+                A::result('log', "a");
                 foreach ($getAccounts->getAccounts() as $oneAccount) {
+                    A::result('log', "b");
                     if ($fints_account['iban'] == $oneAccount->getIban()) {
                         $request_record = array(
                             'konto' => $oneAccount->getIban(),
@@ -147,66 +150,67 @@ class FinTS
                             // handleStrongAuthentication($getAccounts); // See login.php for the implementation.
                         }
 
+                        A::result('log', "c");
 
-                        if ($supportsMt940) {
-                            $soa = $getStatement->getStatement();
-                            foreach ($soa->getStatements() as $statement) {
-                                $statement->getDate()->format('Y-m-d');
-                                $kontostand = $statement->getStartBalance();
+                        //if ($supportsMt940) {
+                        $soa = $getStatement->getStatement();
+                        foreach ($soa->getStatements() as $statement) {
+                            $statement->getDate()->format('Y-m-d');
+                            $kontostand = $statement->getStartBalance();
 
-                                foreach ($statement->getTransactions() as $transaction) {
-                                    $factor = ($transaction->getCreditDebit() == \Fhp\Model\StatementOfAccount\Statement::CD_DEBIT ? -1 : 1);
-                                    $amount = $factor * $transaction->getAmount();
-                                    $name = $transaction->getName();
-                                    $bookingtext = $transaction->getBookingText();
-                                    $description1 = $transaction->getDescription1();
-                                    $description2 = $transaction->getDescription2();
-                                    $bookingdate = $transaction->getBookingDate()->format('Y-m-d');
-                                    $vaultadate = $transaction->getValutaDate()->format('Y-m-d');
-                                    $xblz = $transaction->getBankCode();
-                                    $xbankkonto = $transaction->getAccountNumber();
+                            foreach ($statement->getTransactions() as $transaction) {
+                                $factor = ($transaction->getCreditDebit() == \Fhp\Model\StatementOfAccount\Statement::CD_DEBIT ? -1 : 1);
+                                $amount = $factor * $transaction->getAmount();
+                                $name = $transaction->getName();
+                                $bookingtext = $transaction->getBookingText();
+                                $description1 = $transaction->getDescription1();
+                                $description2 = $transaction->getDescription2();
+                                $bookingdate = $transaction->getBookingDate()->format('Y-m-d');
+                                $vaultadate = $transaction->getValutaDate()->format('Y-m-d');
+                                $xblz = $transaction->getBankCode();
+                                $xbankkonto = $transaction->getAccountNumber();
 
-                                    // $transaction->getEndToEndID()
+                                // $transaction->getEndToEndID()
 
-                                    $kontostand += $amount;
-                                    $hash = array(
-                                        'bankkonto' => $request_record['konto'],
-                                        'buchungsdatum' => $bookingdate,
-                                        'valuta' => $vaultadate,
-                                        'betrag' => $amount,
-                                        'waehrung' => $request_record['waehrung'],
-                                        'empfaengername1' => $name,
-                                        'blz' => $xblz,
-                                        'kontonummer' => $xbankkonto,
-                                        'verwendungszweck1' => $description1,
-                                        'verwendungszweck1' => $description1,
-                                        'verwendungszweck2' => $description2,
-                                        'verwendungszweck3' => $bookingtext,
+                                $kontostand += $amount;
+                                $hash = array(
+                                    'bankkonto' => $request_record['konto'],
+                                    'buchungsdatum' => $bookingdate,
+                                    'valuta' => $vaultadate,
+                                    'betrag' => $amount,
+                                    'waehrung' => $request_record['waehrung'],
+                                    'empfaengername1' => $name,
+                                    'blz' => $xblz,
+                                    'kontonummer' => $xbankkonto,
+                                    'verwendungszweck1' => $description1,
+                                    'verwendungszweck1' => $description1,
+                                    'verwendungszweck2' => $description2,
+                                    'verwendungszweck3' => $bookingtext,
 
-                                        // not the best, but may fit
-                                        'uniqueid' => $vaultadate . $amount . $description1 . $description2 . $bookingtext,
-                                        'kontostand' => $kontostand
+                                    // not the best, but may fit
+                                    'uniqueid' => $vaultadate . $amount . $description1 . $description2 . $bookingtext,
+                                    'kontostand' => $kontostand
 
-                                    );
-                                    A::result('hash', $hash);
+                                );
+                                A::result('hash', $hash);
 
-                                    $r = $db->direct(
-                                        'select 1 from kontoauszuege where  uniqueid={uniqueid} limit 1',
-                                        [
-                                            'uniqueid' => $hash['uniqueid']
-                                        ]
-                                    );
-                                    if (count($r) == 0) {
+                                $r = $db->direct(
+                                    'select 1 from kontoauszuege where  uniqueid={uniqueid} limit 1',
+                                    [
+                                        'uniqueid' => $hash['uniqueid']
+                                    ]
+                                );
+                                if (count($r) == 0) {
 
-                                        $kontoauszuege = \Tualo\Office\DS\DSTable::instance('kontoauszuege');
-                                        $kontoauszuege->insert($hash, [
-                                            'ignore' => true,
-                                            'updateOnDuplicate' => false
-                                        ]);
-                                    }
+                                    $kontoauszuege = \Tualo\Office\DS\DSTable::instance('kontoauszuege');
+                                    $kontoauszuege->insert($hash, [
+                                        'ignore' => true,
+                                        'updateOnDuplicate' => false
+                                    ]);
                                 }
                             }
-                        } else {
+                        }
+                        /*} else {
                             $bookedXml = $getStatement->getBookedXML();
                             file_put_contents(A::get('tempPath') . '/' . date('YmdHis') . '.xml', implode("\n", $bookedXml));
                             foreach ($bookedXml as $bookedXmlRow) {
@@ -217,9 +221,10 @@ class FinTS
                                     // \App\Models\Transaction::fuelArrayFromXmlFinTsTransaction($ta);
                                 }
                             }
-                        }
+                        }*/
                     }
 
+                    A::result('log', "d");
 
                     /*
                     
@@ -229,6 +234,7 @@ class FinTS
                     */
                 }
 
+                A::result('log', "e");
 
                 /*
                 $request_record = array(
