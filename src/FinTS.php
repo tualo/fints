@@ -150,7 +150,7 @@ class FinTS
                             // handleStrongAuthentication($getAccounts); // See login.php for the implementation.
                         }
 
-                        A::result('log', "c");
+                        A::result('logy', "c");
 
                         //if ($supportsMt940) {
                         $soa = $getStatement->getStatement();
@@ -224,7 +224,7 @@ class FinTS
                         }*/
                     }
 
-                    A::result('log', "d");
+                    A::result('logx', "d");
 
                     /*
                     
