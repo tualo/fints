@@ -220,7 +220,7 @@ class FinTS
                             }
 
                             $xmlStrings = $getStatementXML->getBookedXML();
-
+                            A::get("xmlStrings", $xmlStrings);
                             file_put_contents(A::get("tempPath") . "/sample.xml", implode("\n", $xmlStrings));
                             foreach ($xmlStrings as $index => $xml) {
                                 echo "XML Document " . ($index + 1) . ":" . PHP_EOL;
