@@ -15,6 +15,7 @@ use nemiah\phpSepaXml\SEPACreditor;
 use nemiah\phpSepaXml\SEPADebitor;
 use nemiah\phpSepaXml\SEPADirectDebitBasic;
 use nemiah\phpSepaXml\SEPATransfer;
+use Tualo\Office\StatusWebsite\Routes\App;
 
 class FinTS
 {
@@ -219,7 +220,8 @@ class FinTS
                             }
 
                             $xmlStrings = $getStatementXML->getBookedXML();
-                            file_get_contents("sample.xml", implode("\n", $xmlStrings));
+
+                            file_put_contents(A::get("tempPath") . "/sample.xml", implode("\n", $xmlStrings));
                             foreach ($xmlStrings as $index => $xml) {
                                 echo "XML Document " . ($index + 1) . ":" . PHP_EOL;
                                 // You can now parse the XML manually if needed
