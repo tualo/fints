@@ -210,6 +210,25 @@ class FinTS
                                 }
                             }
                         }
+
+
+                        /*
+                        $getStatementXML = \Fhp\Action\GetStatementOfAccountXML::create($oneAccount, $from, $to);
+                        $fints->execute($getStatementXML);
+                        if ($getStatementXML->needsTan()) {
+                            handleStrongAuthentication($getStatementXML); // See login.php for the implementation.
+                        }
+
+                        $xmlStrings = $getStatementXML->getBookedXML();
+                        foreach ($xmlStrings as $index => $xml) {
+                            echo "XML Document " . ($index + 1) . ":" . PHP_EOL;
+                            // You can now parse the XML manually if needed
+                            $doc = simplexml_load_string($xml);
+                            if ($doc !== false) {
+                                echo "Successfully loaded XML document" . PHP_EOL;
+                            }
+                        }*/
+
                         /*} else {
                             $bookedXml = $getStatement->getBookedXML();
                             file_put_contents(A::get('tempPath') . '/' . date('YmdHis') . '.xml', implode("\n", $bookedXml));
