@@ -110,6 +110,14 @@ class FinTS
 
                         //$getStatement = \Fhp\Action\GetStatementOfAccount::create($oneAccount, $from, $to);
 
+                        $getStatement = \Fhp\Action\GetStatementOfAccount::create(
+                            account: $oneAccount,
+                            from: $from,
+                            to: $to,
+                            allAccounts: false,
+                            includeUnbooked: false
+                        );
+                        /*
                         if ($supportsMt940) {
                             $getStatement = \Fhp\Action\GetStatementOfAccount::create(
                                 account: $oneAccount,
@@ -126,6 +134,7 @@ class FinTS
                                 allAccounts: false
                             );
                         }
+                            */
 
                         $fints->execute($getStatement);
 
