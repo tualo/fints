@@ -110,14 +110,7 @@ class FinTS
 
                         //$getStatement = \Fhp\Action\GetStatementOfAccount::create($oneAccount, $from, $to);
 
-                        $getStatement = \Fhp\Action\GetStatementOfAccount::create(
-                            account: $oneAccount,
-                            from: $from,
-                            to: $to,
-                            allAccounts: false,
-                            includeUnbooked: false
-                        );
-                        /*
+
                         if ($supportsMt940) {
                             $getStatement = \Fhp\Action\GetStatementOfAccount::create(
                                 account: $oneAccount,
@@ -134,7 +127,6 @@ class FinTS
                                 allAccounts: false
                             );
                         }
-                            */
 
                         $fints->execute($getStatement);
 
@@ -161,82 +153,82 @@ class FinTS
 
                         A::result('logy', "c");
 
-                        //if ($supportsMt940) {
-                        $soa = $getStatement->getStatement();
-                        foreach ($soa->getStatements() as $statement) {
-                            $statement->getDate()->format('Y-m-d');
-                            $kontostand = $statement->getStartBalance();
+                        if ($supportsMt940) {
+                            $soa = $getStatement->getStatement();
+                            foreach ($soa->getStatements() as $statement) {
+                                $statement->getDate()->format('Y-m-d');
+                                $kontostand = $statement->getStartBalance();
 
-                            foreach ($statement->getTransactions() as $transaction) {
-                                $factor = ($transaction->getCreditDebit() == \Fhp\Model\StatementOfAccount\Statement::CD_DEBIT ? -1 : 1);
-                                $amount = $factor * $transaction->getAmount();
-                                $name = $transaction->getName();
-                                $bookingtext = $transaction->getBookingText();
-                                $description1 = $transaction->getDescription1();
-                                $description2 = $transaction->getDescription2();
-                                $bookingdate = $transaction->getBookingDate()->format('Y-m-d');
-                                $vaultadate = $transaction->getValutaDate()->format('Y-m-d');
-                                $xblz = $transaction->getBankCode();
-                                $xbankkonto = $transaction->getAccountNumber();
+                                foreach ($statement->getTransactions() as $transaction) {
+                                    $factor = ($transaction->getCreditDebit() == \Fhp\Model\StatementOfAccount\Statement::CD_DEBIT ? -1 : 1);
+                                    $amount = $factor * $transaction->getAmount();
+                                    $name = $transaction->getName();
+                                    $bookingtext = $transaction->getBookingText();
+                                    $description1 = $transaction->getDescription1();
+                                    $description2 = $transaction->getDescription2();
+                                    $bookingdate = $transaction->getBookingDate()->format('Y-m-d');
+                                    $vaultadate = $transaction->getValutaDate()->format('Y-m-d');
+                                    $xblz = $transaction->getBankCode();
+                                    $xbankkonto = $transaction->getAccountNumber();
 
-                                // $transaction->getEndToEndID()
+                                    // $transaction->getEndToEndID()
 
-                                $kontostand += $amount;
-                                $hash = array(
-                                    'bankkonto' => $request_record['konto'],
-                                    'buchungsdatum' => $bookingdate,
-                                    'valuta' => $vaultadate,
-                                    'betrag' => $amount,
-                                    'waehrung' => $request_record['waehrung'],
-                                    'empfaengername1' => $name,
-                                    'blz' => $xblz,
-                                    'kontonummer' => $xbankkonto,
-                                    'verwendungszweck1' => $description1,
-                                    'verwendungszweck1' => $description1,
-                                    'verwendungszweck2' => $description2,
-                                    'verwendungszweck3' => $bookingtext,
+                                    $kontostand += $amount;
+                                    $hash = array(
+                                        'bankkonto' => $request_record['konto'],
+                                        'buchungsdatum' => $bookingdate,
+                                        'valuta' => $vaultadate,
+                                        'betrag' => $amount,
+                                        'waehrung' => $request_record['waehrung'],
+                                        'empfaengername1' => $name,
+                                        'blz' => $xblz,
+                                        'kontonummer' => $xbankkonto,
+                                        'verwendungszweck1' => $description1,
+                                        'verwendungszweck1' => $description1,
+                                        'verwendungszweck2' => $description2,
+                                        'verwendungszweck3' => $bookingtext,
 
-                                    // not the best, but may fit
-                                    'uniqueid' => $vaultadate . $amount . $description1 . $description2 . $bookingtext,
-                                    'kontostand' => $kontostand
+                                        // not the best, but may fit
+                                        'uniqueid' => $vaultadate . $amount . $description1 . $description2 . $bookingtext,
+                                        'kontostand' => $kontostand
 
-                                );
-                                A::result('hash', $hash);
+                                    );
+                                    A::result('hash', $hash);
 
-                                $r = $db->direct(
-                                    'select 1 from kontoauszuege where  uniqueid={uniqueid} limit 1',
-                                    [
-                                        'uniqueid' => $hash['uniqueid']
-                                    ]
-                                );
-                                if (count($r) == 0) {
+                                    $r = $db->direct(
+                                        'select 1 from kontoauszuege where  uniqueid={uniqueid} limit 1',
+                                        [
+                                            'uniqueid' => $hash['uniqueid']
+                                        ]
+                                    );
+                                    if (count($r) == 0) {
 
-                                    $kontoauszuege = \Tualo\Office\DS\DSTable::instance('kontoauszuege');
-                                    $kontoauszuege->insert($hash, [
-                                        'ignore' => true,
-                                        'updateOnDuplicate' => false
-                                    ]);
+                                        $kontoauszuege = \Tualo\Office\DS\DSTable::instance('kontoauszuege');
+                                        $kontoauszuege->insert($hash, [
+                                            'ignore' => true,
+                                            'updateOnDuplicate' => false
+                                        ]);
+                                    }
+                                }
+                            }
+                        } else {
+                            $getStatementXML = \Fhp\Action\GetStatementOfAccountXML::create($oneAccount, $from, $to);
+                            $fints->execute($getStatementXML);
+                            if ($getStatementXML->needsTan()) {
+                                handleStrongAuthentication($getStatementXML); // See login.php for the implementation.
+                            }
+
+                            $xmlStrings = $getStatementXML->getBookedXML();
+                            file_get_contents("sample.xml", implode("\n", $xmlStrings));
+                            foreach ($xmlStrings as $index => $xml) {
+                                echo "XML Document " . ($index + 1) . ":" . PHP_EOL;
+                                // You can now parse the XML manually if needed
+                                $doc = simplexml_load_string($xml);
+                                if ($doc !== false) {
+                                    echo "Successfully loaded XML document" . PHP_EOL;
                                 }
                             }
                         }
-
-
-                        /*
-                        $getStatementXML = \Fhp\Action\GetStatementOfAccountXML::create($oneAccount, $from, $to);
-                        $fints->execute($getStatementXML);
-                        if ($getStatementXML->needsTan()) {
-                            handleStrongAuthentication($getStatementXML); // See login.php for the implementation.
-                        }
-
-                        $xmlStrings = $getStatementXML->getBookedXML();
-                        foreach ($xmlStrings as $index => $xml) {
-                            echo "XML Document " . ($index + 1) . ":" . PHP_EOL;
-                            // You can now parse the XML manually if needed
-                            $doc = simplexml_load_string($xml);
-                            if ($doc !== false) {
-                                echo "Successfully loaded XML document" . PHP_EOL;
-                            }
-                        }*/
 
                         /*} else {
                             $bookedXml = $getStatement->getBookedXML();
