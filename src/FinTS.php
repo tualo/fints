@@ -220,14 +220,26 @@ class FinTS
                             }
 
                             $xmlStrings = $getStatementXML->getBookedXML();
-                            A::get("xmlStrings", $xmlStrings);
-                            file_put_contents(A::get("tempPath") . "/sample.xml", implode("\n", $xmlStrings));
-                            foreach ($xmlStrings as $index => $xml) {
-                                echo "XML Document " . ($index + 1) . ":" . PHP_EOL;
-                                // You can now parse the XML manually if needed
-                                $doc = simplexml_load_string($xml);
-                                if ($doc !== false) {
-                                    echo "Successfully loaded XML document" . PHP_EOL;
+
+                            $transactions = Camt052::parseCamt052(implode("\n", $xmlStrings));
+
+                            foreach ($transactions as $transaction) {
+
+
+
+                                $r = $db->direct(
+                                    'select 1 from kontoauszuege where  uniqueid={uniqueid} limit 1',
+                                    [
+                                        'uniqueid' => $transaction['uniqueid']
+                                    ]
+                                );
+                                if (count($r) == 0) {
+
+                                    $kontoauszuege = \Tualo\Office\DS\DSTable::instance('kontoauszuege');
+                                    $kontoauszuege->insert($transaction, [
+                                        'ignore' => true,
+                                        'updateOnDuplicate' => false
+                                    ]);
                                 }
                             }
                         }
