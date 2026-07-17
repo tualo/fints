@@ -46,3 +46,51 @@ create or replace trigger `blg_pay_krechnung_open_au` after delete on blg_pay_kr
 begin
     call recalculateheaderkrechnung(old.belegnummer);
 end //
+
+
+create or replace trigger `blg_pay_krechnung_open_ai` after insert on blg_pay_krechnung for each row
+begin
+
+    replace into deferred_sql_tasks (
+        taskid,
+        sessionuser,
+        state,
+        createtime,
+        sqlstatement,
+        hostname
+    ) values (
+        "proc_briefwahlkandidaten",
+        getSessionUser(),
+        0,
+        current_timestamp(),
+        concat("call recalculateheader('krechnung',", new.belegnummer, "    );"),
+        @@hostname
+    );
+    
+end //
+
+create or replace trigger `blg_pay_krechnung_open_au` after update on blg_pay_krechnung for each row
+begin
+    call recalculateheader('krechnung',new.belegnummer);
+end //
+
+create or replace trigger `blg_pay_krechnung_open_ad` after delete on blg_pay_krechnung for each row
+begin
+    call recalculateheader('krechnung',old.belegnummer);
+end //
+
+
+create or replace trigger `blg_pay_rechnung_open_ai` after insert on blg_pay_rechnung for each row
+begin
+    call recalculateheader('rechnung',new.belegnummer);
+end //
+
+create or replace trigger `blg_pay_rechnung_open_au` after update on blg_pay_rechnung for each row
+begin
+    call recalculateheader('rechnung',new.belegnummer);
+end //
+
+create or replace trigger `blg_pay_rechnung_open_ad` after delete on blg_pay_rechnung for each row
+begin
+    call recalculateheader('rechnung',old.belegnummer);
+end //

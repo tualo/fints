@@ -25,6 +25,7 @@ class OpenReports extends \Tualo\Office\Basic\RouteWrapper
         Route::add('/fints/openreports', function ($matches) {
 
             $db = A::get('session')->getDB();
+            A::deferredTrigger();
             try {
 
                 $sql = 'select id,name,tabellenzusatz,adress_bezug,preis_bezug,bezug_id,bezug_kst from blg_config';
@@ -147,6 +148,7 @@ class OpenReports extends \Tualo\Office\Basic\RouteWrapper
         Route::add('/fints/reports', function ($matches) {
 
             $db = A::get('session')->getDB();
+            A::deferredTrigger();
             try {
 
                 $sql = 'select id,name,tabellenzusatz,adress_bezug,preis_bezug,bezug_id,bezug_kst from blg_config';
