@@ -42,6 +42,8 @@ class Camt052
 */
             // Alle Transaktionen durchlaufen
             foreach ($rpt->Ntry as $entry) {
+
+
                 // Extrahiere Daten aus der Transaktion
                 $bookingdate = (string)$entry->BookgDt->Dt;
                 $valutadate = (string)$entry->ValDt->Dt;
@@ -104,6 +106,7 @@ class Camt052
                     'verwendungszweck3' => $description3,
                     'uniqueid' => $uniqueid,
                 );
+                print_r($hash);
 
                 $transactions[] = $hash;
             }

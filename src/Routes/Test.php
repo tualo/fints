@@ -18,7 +18,30 @@ class Test extends \Tualo\Office\Basic\RouteWrapper
             $db = A::get('session')->getDB();
             try {
                 $xmls = file_get_contents((string)A::get('basePath') . '/.ht_20260727071732.xml');
-                A::result('data', Camt052::parseCamt052($xmls));
+                $transactions = Camt052::parseCamt052($xmls);
+                A::result('data', $transactions);
+
+
+                foreach ($transactions as $transaction) {
+
+
+
+                    $r = $db->direct(
+                        'select 1 from kontoauszuege where  uniqueid={uniqueid} limit 1',
+                        [
+                            'uniqueid' => $transaction['uniqueid']
+                        ]
+                    );
+                    if (count($r) == 0) {
+
+                        $kontoauszuege = \Tualo\Office\DS\DSTable::instance('kontoauszuege');
+                        $kontoauszuege->insert($transaction, [
+                            'ignore' => true,
+                            'updateOnDuplicate' => false
+                        ]);
+                    }
+                }
+
                 A::result('success', true);
             } catch (\Exception $e) {
 
