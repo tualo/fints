@@ -110,8 +110,6 @@ class FinTS
                         $supportsMt940 = $hikazs !== null ? true : false;
 
 
-                        $from = new \DateTime('2026-06-08');
-                        $to = new \DateTime('2026-07-03');
                         //$getStatement = \Fhp\Action\GetStatementOfAccount::create($oneAccount, $from, $to);
 
 
@@ -223,7 +221,7 @@ class FinTS
 
                             $xmlStrings = $getStatementXML->getBookedXML();
 
-                            file_put_contents((string)A::get('basePath') . '/.ht_' . date('YmdHis') . '.xml', implode("\n", $xmlStrings));
+                            //                            file_put_contents((string)A::get('basePath') . '/.ht_' . date('YmdHis') . '.xml', implode("\n", $xmlStrings));
 
                             $transactions = Camt052::parseCamt052(implode("\n", $xmlStrings));
 
