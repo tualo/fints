@@ -86,6 +86,7 @@ class Camt052
                             $description3 = $parts[2] ?? '';
                         }
                     }
+                } else {
                 }
 
                 // Eindeutige ID generieren
@@ -106,7 +107,6 @@ class Camt052
                     'verwendungszweck3' => $description3,
                     'uniqueid' => $uniqueid,
                 );
-                print_r($hash);
 
                 $transactions[] = $hash;
             }

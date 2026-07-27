@@ -22,7 +22,7 @@ class Test extends \Tualo\Office\Basic\RouteWrapper
                 A::result('data', $transactions);
 
 
-                foreach ($transactions as $transaction) {
+                foreach ($transactions as $index => $transaction) {
 
 
 
@@ -39,6 +39,8 @@ class Test extends \Tualo\Office\Basic\RouteWrapper
                             'ignore' => true,
                             'updateOnDuplicate' => false
                         ]);
+                    } else {
+                        A::result('duplicate_' . $index, $transaction['uniqueid']);
                     }
                 }
 
