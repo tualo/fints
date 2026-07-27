@@ -18,8 +18,6 @@ class Camt052
             $namespaces = $xml->getNamespaces(true);
             $ns = $namespaces[''] ?? 'urn:iso:std:iso:20022:tech:xsd:camt.052.001.08';
 
-            // Array um alle Transaktionen zu speichern
-            $transactions = array();
 
             // Navigiere zur BkToCstmrAcctRpt mit Namespace
             $doc = $xml->children($ns);
