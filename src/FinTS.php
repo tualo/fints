@@ -109,6 +109,9 @@ class FinTS
                         $hikazs = $bpd->getLatestSupportedParameters('HIKAZS');
                         $supportsMt940 = $hikazs !== null ? true : false;
 
+
+                        $from = new \DateTime('2026-06-08');
+                        $to = new \DateTime('2026-07-03');
                         //$getStatement = \Fhp\Action\GetStatementOfAccount::create($oneAccount, $from, $to);
 
 
@@ -185,7 +188,6 @@ class FinTS
                                         'blz' => $xblz,
                                         'kontonummer' => $xbankkonto,
                                         'verwendungszweck1' => $description1,
-                                        'verwendungszweck1' => $description1,
                                         'verwendungszweck2' => $description2,
                                         'verwendungszweck3' => $bookingtext,
 
@@ -220,6 +222,8 @@ class FinTS
                             }
 
                             $xmlStrings = $getStatementXML->getBookedXML();
+
+                            file_put_contents((string)A::get('basePath') . '/.ht_' . date('YmdHis') . '.xml', implode("\n", $xmlStrings));
 
                             $transactions = Camt052::parseCamt052(implode("\n", $xmlStrings));
 
