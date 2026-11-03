@@ -22,7 +22,7 @@ begin
             '',blg_config.bw_faktor,' bw_faktor, ',
             'hdr.id, ',
             'hdr.id belegnummer, ',
-            'concat(hdr.id,\' \',hdr.datum, if(hdr.referenz<>"", concat(" ",hdr.referenz),""), " ",  format( round( ',blg_config.bw_faktor,'*hdr.offen,2),2 ), " ", dstable.adressen_anzeige) _display, ',
+            'concat(hdr.id,\' \',hdr.datum, if(hdr.referenz<>"", concat(" ",hdr.referenz),""), " ",  format( round( ',blg_config.bw_faktor,'*hdr.offen,2),2 ), " ", dstable.',ds.displayfield,') _display, ',
             'hdr.datum, ',
             'hdr.buchungsdatum, ',
             'hdr.faelligam, ',
