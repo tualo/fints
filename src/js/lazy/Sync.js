@@ -1,9 +1,15 @@
 Ext.define('Tualo.FinTS.Sync', {
-//    extend: 'Ext.form.Panel',
+    //    extend: 'Ext.form.Panel',
     extend: 'Ext.panel.Panel',
     alias: 'widget.fints_sync',
-    listeners:{
-      boxReady: 'onReady'
+    getWindowTitle: function () {
+        return 'Kontenabruf'
+    },
+    getWindowIcon: function () {
+        return 'fa-solid fa-bank';
+    },
+    listeners: {
+        boxReady: 'onReady'
     },
     defaults: {
         anchor: '100%'
@@ -32,22 +38,22 @@ Ext.define('Tualo.FinTS.Sync', {
     bbar: [{
         itemId: 'card-cancle',
         text: 'Abbrechen',
-        handler: function(){
+        handler: function () {
             Ext.History.back()
         },
         disabled: false
-    },'->',
-           {
-               itemId: 'card-prev',
-               text: '&laquo; Zurück',
-               handler: 'showPrevious',
-               disabled: true
-           },
-           {
-               itemId: 'card-next',
-               text: 'Weiter &raquo;',
-               handler: 'showNext'
-           }
+    }, '->',
+    {
+        itemId: 'card-prev',
+        text: '&laquo; Zurück',
+        handler: 'showPrevious',
+        disabled: true
+    },
+    {
+        itemId: 'card-next',
+        text: 'Weiter &raquo;',
+        handler: 'showNext'
+    }
     ],
 
     items: [
@@ -84,7 +90,7 @@ Ext.define('Tualo.FinTS.Sync', {
                         + '<div><h3>Kontoauszug</h3>'
                         + '<span>Wählen Sie ein Konto aus.</span></div>'
                 },
-                
+
                 {
                     xtype: 'dslist_fints_accounts',
                     itemId: 'accountList',
@@ -96,39 +102,39 @@ Ext.define('Tualo.FinTS.Sync', {
                     },
                     columns: [
                         {
-                          "text": "Name",
-                          "xtype": "gridcolumn",
-                          "dataIndex": "name",
-                          "align": "left",
-                          "formatter": "",
-                          "summaryType": null,
-                          "summaryRenderer": null,
-                          "summaryFormatter": null,
-                          "hidden": false,
-                          "editor": null,
-                          "flex": 1,
-                          "filter": {
-                            "type": "string"
-                          }
+                            "text": "Name",
+                            "xtype": "gridcolumn",
+                            "dataIndex": "name",
+                            "align": "left",
+                            "formatter": "",
+                            "summaryType": null,
+                            "summaryRenderer": null,
+                            "summaryFormatter": null,
+                            "hidden": false,
+                            "editor": null,
+                            "flex": 1,
+                            "filter": {
+                                "type": "string"
+                            }
                         },
                         {
-                          "text": "Benutzername",
-                          "xtype": "gridcolumn",
-                          "dataIndex": "banking_username",
-                          "align": "left",
-                          "formatter": "",
-                          "summaryType": null,
-                          "summaryRenderer": null,
-                          "summaryFormatter": null,
-                          "hidden": false,
-                          "editor": null,
-                          "flex": 1,
-                          "filter": {
-                            "type": "string"
-                          }
+                            "text": "Benutzername",
+                            "xtype": "gridcolumn",
+                            "dataIndex": "banking_username",
+                            "align": "left",
+                            "formatter": "",
+                            "summaryType": null,
+                            "summaryRenderer": null,
+                            "summaryFormatter": null,
+                            "hidden": false,
+                            "editor": null,
+                            "flex": 1,
+                            "filter": {
+                                "type": "string"
+                            }
                         }
                     ],
-                    bind:{
+                    bind: {
                         store: '{fints_accounts}',
                         selection: '{selectedAccount}'
                     }
@@ -151,7 +157,7 @@ Ext.define('Tualo.FinTS.Sync', {
                         + '<div><h3>Kontoauszug</h3>'
                         + '<span>Geben Sie das Passwort ein.</span></div>'
                 },
-                
+
                 {
                     xtype: 'textfield',
                     fieldLabel: 'Password',
@@ -178,7 +184,7 @@ Ext.define('Tualo.FinTS.Sync', {
                         + '<div><h3>Kontoauszug</h3>'
                         + '<span>Wählen Sie ein Anmeldeverfahren.</span></div>'
                 },
-                
+
                 {
                     xtype: 'combobox',
                     itemId: 'tanmodescombobox',
@@ -210,7 +216,7 @@ Ext.define('Tualo.FinTS.Sync', {
                         + '<div><h3>Kontoauszug</h3>'
                         + '<span>Wähel Sie Ihr TAN System aus.</span></div>'
                 },
-                
+
                 {
 
                     xtype: 'combobox',
@@ -245,7 +251,7 @@ Ext.define('Tualo.FinTS.Sync', {
                 }
             ]
         },
-        
+
         {
             xtype: 'panel',
             layout: {
@@ -274,55 +280,55 @@ Ext.define('Tualo.FinTS.Sync', {
         }
     ],
 
-    showNext: function() {
+    showNext: function () {
         this.doCardNavigation(1);
     },
 
-    showPrevious: function(btn) {
+    showPrevious: function (btn) {
         this.doCardNavigation(-1);
     },
 
-    getCardIndex: function(){
+    getCardIndex: function () {
         var me = this,
-        l = me.getLayout(),
-        id = l.activeItem.itemId || l.activeItem.getId();
+            l = me.getLayout(),
+            id = l.activeItem.itemId || l.activeItem.getId();
         return me.items.indexMap[id];
     },
-    doCardNavigation: function(incr) {
+    doCardNavigation: function (incr) {
         var me = this,
             l = me.getLayout(),
             currentId = l.activeItem.itemId;
-            i = me.getCardIndex(),
+        i = me.getCardIndex(),
             s = me.items.length,
             next = parseInt(i, 10) + incr;
 
-        
+
         me.getController().forceSelection();
-        if (currentId=='accountPassword'){
+        if (currentId == 'accountPassword') {
             me.getController().getTanModes();
             me.next(next);
-        }else if (currentId=='tanmodes'){
+        } else if (currentId == 'tanmodes') {
             let mode = me.getViewModel().get('accountTANMode'),
-                store  = me.getViewModel().getStore('tanmodes'),
-                byID = store.findRecord( 'id', mode, 0, false, false, true ),
-                byName = store.findRecord( 'name', mode, 0, false, false, true ),
-                match = byID || byName,
+                store = me.getViewModel().getStore('tanmodes'),
+                byID = store.findRecord('id', mode, 0, false, false, true),
+                byName = store.findRecord('name', mode, 0, false, false, true),
+                match = byID || byName,
                 modeID = match.get('id'),
                 needsTanMedium = match.get('needsTanMedium');
 
-            console.log('needsTanMedium',needsTanMedium,next)
-            me.getViewModel().set('needsTanMedium',needsTanMedium);
-            me.getViewModel().set('accountTANModeID',modeID);
-            if (!needsTanMedium){
-                next=next+1;
-                console.log('needsTanMedium','yyy');
-                me.getController().login(()=>{
+            console.log('needsTanMedium', needsTanMedium, next)
+            me.getViewModel().set('needsTanMedium', needsTanMedium);
+            me.getViewModel().set('accountTANModeID', modeID);
+            if (!needsTanMedium) {
+                next = next + 1;
+                console.log('needsTanMedium', 'yyy');
+                me.getController().login(() => {
                     me.next(next);
                 });
                 return;
-            }else{
-                
-                me.getController().getTanMedia(()=>{
+            } else {
+
+                me.getController().getTanMedia(() => {
                     me.next(next);
                 });
                 return;
@@ -331,32 +337,32 @@ Ext.define('Tualo.FinTS.Sync', {
 
             me.next(next);
 
-        }else if (currentId=='tanmedia'){
-            me.getController().login(()=>{
+        } else if (currentId == 'tanmedia') {
+            me.getController().login(() => {
                 me.next(next);
             });
             return;
-        }else if (currentId=='statements'){
-            me.getController().statements(()=>{
+        } else if (currentId == 'statements') {
+            me.getController().statements(() => {
                 console.log('statements');
                 me.next(next);
             });
             return;
-        }else if (currentId=='statements_done'){
+        } else if (currentId == 'statements_done') {
             Ext.util.History.back();
             return;
         }
 
-        
-        console.log(currentId,'next',next,'current',i)
+
+        console.log(currentId, 'next', next, 'current', i)
         me.next(next);
     },
-    next: function(next){
+    next: function (next) {
         var me = this,
             l = me.getLayout();
         l.setActiveItem(next);
         me.down('#card-prev').setDisabled(next === 0);
-        me.down('#card-next').setDisabled(next === s-1);
+        me.down('#card-next').setDisabled(next === s - 1);
 
     }
 });

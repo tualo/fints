@@ -8,7 +8,12 @@ Ext.define('Tualo.FinTS.lazy.extended.AccountView', {
         anchor: '100%',
         border: false
     },
-
+    getWindowTitle: function () {
+        return 'Verbuchen'
+    },
+    getWindowIcon: function () {
+        return 'fa-regular fa-money-bills-simple';
+    },
     // defaultListenerScope: true,
     controller: 'fints_accountview_extended',
     viewModel: {
